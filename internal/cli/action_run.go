@@ -265,7 +265,7 @@ func (a *action) runGitCommit(c *cli.Context, successUpgradedModules []Module, e
 	for _, module := range successUpgradedModules {
 		gitCommitMessage += fmt.Sprintf("\n%s: %s -> %s", module.Path, module.Version, module.Update.Version)
 	}
-	gitCommitArgs := []string{"commit", "-m", `"` + gitCommitMessage + `"`}
+	gitCommitArgs := []string{"commit", "-m", gitCommitMessage}
 	gitOutput, err = exec.CommandContext(c.Context, "git", gitCommitArgs...).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to run git %+v: %w", strings.Join(gitCommitArgs, " "), err)
