@@ -160,7 +160,7 @@ func (a *action) runUpgradeModule(
 	}
 	a.log("line: %s", modulePath)
 
-	// Check if line is imported module, otherwise skip
+	// Check if modulePath is imported module, otherwise skip
 	if _, ok := mapImportedModules[modulePath]; !ok {
 		a.log("%s is not imported module", modulePath)
 		return successUpgradedModules, nil
@@ -206,6 +206,10 @@ func (a *action) runUpgradeModule(
 }
 
 func (a *action) runGoMod(c *cli.Context, existVendor bool) error {
+	if a.flags.dryRun {
+		return nil
+	}
+
 	// go mod tidy
 	goModArgs := []string{"mod", "tidy"}
 	goOutput, err := exec.CommandContext(c.Context, "go", goModArgs...).CombinedOutput()
