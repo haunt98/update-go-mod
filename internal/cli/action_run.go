@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"strings"
@@ -12,7 +15,10 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-var ErrInvalidModuleVersion = errors.New("invalid module version")
+var (
+	ErrInvalidModuleVersion = errors.New("invalid module version")
+	ErrFailedStatusCode     = errors.New("failed status code")
+)
 
 // See https://pkg.go.dev/cmd/go#hdr-List_packages_or_modules
 type Module struct {
@@ -49,18 +55,43 @@ func (a *action) Run(c *cli.Context) error {
 	}
 	a.log("imported modules: %+v\n", importedModules)
 
-	// Read pkg from file
-	depsFileBytes, err := os.ReadFile(a.flags.depsFile)
-	if err != nil {
-		if os.IsNotExist(err) {
-			color.PrintAppWarning(name, fmt.Sprintf("deps file [%s] not found", a.flags.depsFile))
-			return nil
+	// Try to parse url first
+	var depsFileStr string
+	depsFileURL, err := url.Parse(a.flags.depsFile)
+	if err == nil {
+		httpRsp, err := http.Get(depsFileURL.String())
+		if err != nil {
+			return fmt.Errorf("failed to http get %s: %w", depsFileURL.String(), err)
+		}
+		defer httpRsp.Body.Close()
+
+		if httpRsp.StatusCode != http.StatusOK {
+			return fmt.Errorf("http status code not ok %d: %w", httpRsp.StatusCode, ErrFailedStatusCode)
 		}
 
-		return fmt.Errorf("failed to read file %s: %w", a.flags.depsFile, err)
+		depsFileBytes, err := io.ReadAll(httpRsp.Body)
+		if err != nil {
+			return fmt.Errorf("failed to read http response body: %w", err)
+		}
+
+		depsFileStr = string(depsFileBytes)
+	} else {
+		a.log("url parse error: %s", err)
+
+		// If not url, try to read local file
+		depsFileBytes, err := os.ReadFile(a.flags.depsFile)
+		if err != nil {
+			if os.IsNotExist(err) {
+				color.PrintAppWarning(name, fmt.Sprintf("deps file [%s] not found", a.flags.depsFile))
+				return nil
+			}
+
+			return fmt.Errorf("failed to read file %s: %w", a.flags.depsFile, err)
+		}
+
+		depsFileStr = strings.TrimSpace(string(depsFileBytes))
 	}
 
-	depsFileStr := strings.TrimSpace(string(depsFileBytes))
 	lines := strings.Split(depsFileStr, "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
