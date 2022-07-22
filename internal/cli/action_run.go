@@ -48,18 +48,18 @@ func (a *action) Run(c *cli.Context) error {
 		existVendor = true
 	}
 
-	depsFileStr, err := a.runReadDepsFile(c)
+	depsStr, err := a.runReadDepsFile(c)
 	if err != nil {
 		return err
 	}
 
-	if depsFileStr == "" {
+	if depsStr == "" {
 		return nil
 	}
 
 	// Read deps file line by line to upgrade
 	successUpgradedModules := make([]Module, 0, 100)
-	modulePaths := strings.Split(depsFileStr, "\n")
+	modulePaths := strings.Split(depsStr, "\n")
 	for _, modulePath := range modulePaths {
 		successUpgradedModules, err = a.runUpgradeModule(c, mapImportedModules, successUpgradedModules, modulePath)
 		if err != nil {
@@ -108,13 +108,16 @@ func (a *action) runGetImportedModules(c *cli.Context) (map[string]struct{}, err
 }
 
 func (a *action) runReadDepsFile(c *cli.Context) (string, error) {
-	// Try to parse url first
-	var depsFileStr string
-	depsFileURL, err := url.Parse(a.flags.depsFile)
-	if err == nil {
-		httpRsp, err := http.Get(depsFileURL.String())
+	// Try to read from url first
+	if a.flags.depsURL != "" {
+		depsURL, err := url.Parse(a.flags.depsURL)
 		if err != nil {
-			return "", fmt.Errorf("failed to http get %s: %w", depsFileURL.String(), err)
+			return "", fmt.Errorf("failed to parse deps file url %s: %w", a.flags.depsURL, err)
+		}
+
+		httpRsp, err := http.Get(depsURL.String())
+		if err != nil {
+			return "", fmt.Errorf("failed to http get %s: %w", depsURL.String(), err)
 		}
 		defer httpRsp.Body.Close()
 
@@ -122,30 +125,26 @@ func (a *action) runReadDepsFile(c *cli.Context) (string, error) {
 			return "", fmt.Errorf("http status code not ok %d: %w", httpRsp.StatusCode, ErrFailedStatusCode)
 		}
 
-		depsFileBytes, err := io.ReadAll(httpRsp.Body)
+		depsBytes, err := io.ReadAll(httpRsp.Body)
 		if err != nil {
 			return "", fmt.Errorf("failed to read http response body: %w", err)
 		}
 
-		depsFileStr = string(depsFileBytes)
-	} else {
-		a.log("url parse error: %s", err)
-
-		// If not url, try to read local file
-		depsFileBytes, err := os.ReadFile(a.flags.depsFile)
-		if err != nil {
-			if os.IsNotExist(err) {
-				color.PrintAppWarning(name, fmt.Sprintf("deps file [%s] not found", a.flags.depsFile))
-				return "", nil
-			}
-
-			return "", fmt.Errorf("failed to read file %s: %w", a.flags.depsFile, err)
-		}
-
-		depsFileStr = strings.TrimSpace(string(depsFileBytes))
+		return strings.TrimSpace(string(depsBytes)), nil
 	}
 
-	return depsFileStr, nil
+	// If empty url, try to read from file
+	depsBytes, err := os.ReadFile(a.flags.depsFile)
+	if err != nil {
+		if os.IsNotExist(err) {
+			color.PrintAppWarning(name, fmt.Sprintf("deps file [%s] not found", a.flags.depsFile))
+			return "", nil
+		}
+
+		return "", fmt.Errorf("failed to read file %s: %w", a.flags.depsFile, err)
+	}
+
+	return strings.TrimSpace(string(depsBytes)), nil
 }
 
 func (a *action) runUpgradeModule(

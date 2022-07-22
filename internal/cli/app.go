@@ -13,14 +13,18 @@ const (
 
 	flagVerbose  = "verbose"
 	flagDepsFile = "deps-file"
+	flagDepsURL  = "deps-url"
 	flagDryRun   = "dry-run"
 
 	commandRun = "run"
 
 	usageCommandRun  = "run the program"
 	usageFlagVerbose = "show what is going on"
-	usageDepsFile    = "show what deps need to upgrade"
+	usageDepsFile    = "file which show what deps need to upgrade"
+	usageDepsURL     = "url which show what deps need to upgrade"
 	usageDryRun      = "demo what would be done"
+
+	defaultDepsFile = ".deps"
 )
 
 var aliasFlagVerbose = []string{"v"}
@@ -46,9 +50,13 @@ func NewApp() *App {
 						Usage:   usageFlagVerbose,
 					},
 					&cli.StringFlag{
-						Name:     flagDepsFile,
-						Usage:    usageDepsFile,
-						Required: true,
+						Name:  flagDepsFile,
+						Usage: usageDepsFile,
+						Value: defaultDepsFile,
+					},
+					&cli.StringFlag{
+						Name:  flagDepsURL,
+						Usage: usageDepsURL,
 					},
 					&cli.BoolFlag{
 						Name:  flagDryRun,
