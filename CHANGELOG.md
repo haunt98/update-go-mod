@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.1.1 (2022-07-22)
+
+### Others
+
+- chore: missing goreleaser config (2022-07-22)
+
+- chore(changelog): generate v0.1.0 (2022-07-22)
+
 ## v0.1.0 (2022-07-22)
 
 ### Added
