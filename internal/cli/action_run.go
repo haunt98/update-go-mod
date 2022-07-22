@@ -15,6 +15,10 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+const (
+	gitDirectory = ".git"
+)
+
 var (
 	ErrInvalidModuleVersion = errors.New("invalid module version")
 	ErrFailedStatusCode     = errors.New("failed status code")
@@ -92,6 +96,9 @@ func (a *action) Run(c *cli.Context) error {
 		depsFileStr = strings.TrimSpace(string(depsFileBytes))
 	}
 
+	// Read deps file line by line to upgrade
+	successUpgradeModules := make([]Module, 0, 100)
+
 	lines := strings.Split(depsFileStr, "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
@@ -138,15 +145,38 @@ func (a *action) Run(c *cli.Context) error {
 		}
 		a.log("go output: %s", string(goOutput))
 
+		successUpgradeModules = append(successUpgradeModules, module)
+
 		color.PrintAppOK(name, fmt.Sprintf("Upgraded [%s] version [%s] to [%s] success", module.Path, module.Version, module.Update.Version))
 	}
 
+	// go mod tidy
 	goModArgs := []string{"mod", "tidy"}
 	goOutput, err = exec.CommandContext(c.Context, "go", goModArgs...).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
 	}
 	a.log("go output: %s", string(goOutput))
+
+	// If exist git, auto commit
+	if _, err := os.Stat(gitDirectory); err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+
+		return fmt.Errorf("failed to stat %s: %w", gitDirectory, err)
+	}
+
+	gitCommitMessage := "build: upgrade modules\n"
+	for _, module := range successUpgradeModules {
+		gitCommitMessage += fmt.Sprintf("\n%s: %s -> %s", module.Path, module.Version, module.Update.Version)
+	}
+	gitCommitArgs := []string{"commit", "-m", gitCommitMessage}
+	gitOutput, err := exec.CommandContext(c.Context, "git", gitCommitArgs...).CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to run git %+v: %w", strings.Join(gitCommitArgs, " "), err)
+	}
+	a.log("git output: %s", string(gitOutput))
 
 	return nil
 }
