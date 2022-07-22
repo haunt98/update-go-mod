@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.2.1 (2022-07-22)
+
+### Others
+
+- chore: add install, guide in readme (2022-07-22)
+
+- chore(changelog): generate v0.2.0 (2022-07-22)
+
 ## v0.2.0 (2022-07-22)
 
 ### Added
