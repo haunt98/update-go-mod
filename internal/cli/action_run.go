@@ -167,11 +167,19 @@ func (a *action) Run(c *cli.Context) error {
 		return fmt.Errorf("failed to stat %s: %w", gitDirectory, err)
 	}
 
+	if a.flags.dryRun {
+		return nil
+	}
+
+	if len(successUpgradeModules) == 0 {
+		return nil
+	}
+
 	gitCommitMessage := "build: upgrade modules\n"
 	for _, module := range successUpgradeModules {
 		gitCommitMessage += fmt.Sprintf("\n%s: %s -> %s", module.Path, module.Version, module.Update.Version)
 	}
-	gitCommitArgs := []string{"commit", "-m", gitCommitMessage}
+	gitCommitArgs := []string{"commit", "-m", `"` + gitCommitMessage + `"`}
 	gitOutput, err := exec.CommandContext(c.Context, "git", gitCommitArgs...).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to run git %+v: %w", strings.Join(gitCommitArgs, " "), err)
