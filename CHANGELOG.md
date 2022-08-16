@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## v0.2.2 (2022-08-16)
+
+### Fixed
+
+- fix: remove default value of deps file (2022-08-16)
+
+### Others
+
+- chore: update github action (2022-08-16)
+
+- Merge pull request #1 from haunt98/dependabot/go_modules/github.com/urfave/cli/v2-2.11.2 (2022-08-15)
+
+- chore(changelog): generate v0.2.1 (2022-07-22)
+
 ## v0.2.1 (2022-07-22)
 
 ### Others
