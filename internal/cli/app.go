@@ -11,20 +11,20 @@ const (
 	name  = "update-go-mod"
 	usage = "excatly like the name says"
 
-	flagVerbose  = "verbose"
-	flagDepsFile = "deps-file"
-	flagDepsURL  = "deps-url"
-	flagDryRun   = "dry-run"
+	commandRunName  = "run"
+	commandRunUsage = "run the program"
 
-	commandRun = "run"
+	flagVerboseName  = "verbose"
+	flagVerboseUsage = "show what is going on"
 
-	usageCommandRun  = "run the program"
-	usageFlagVerbose = "show what is going on"
-	usageDepsFile    = "file which show what deps need to upgrade"
-	usageDepsURL     = "url which show what deps need to upgrade"
-	usageDryRun      = "demo what would be done"
+	flagDepsFileName  = "deps-file"
+	flagDepsFileUsage = "file which show what deps need to upgrade"
 
-	defaultDepsFile = ".deps"
+	flagDepsURLName  = "deps-url"
+	flagDepsURLUsage = "url which show what deps need to upgrade"
+
+	flagDryRun     = "dry-run"
+	flagDryRunName = "demo what would be done"
 )
 
 var aliasFlagVerbose = []string{"v"}
@@ -41,26 +41,25 @@ func NewApp() *App {
 		Usage: usage,
 		Commands: []*cli.Command{
 			{
-				Name:  commandRun,
-				Usage: usageCommandRun,
+				Name:  commandRunName,
+				Usage: commandRunUsage,
 				Flags: []cli.Flag{
 					&cli.BoolFlag{
-						Name:    flagVerbose,
+						Name:    flagVerboseName,
 						Aliases: aliasFlagVerbose,
-						Usage:   usageFlagVerbose,
+						Usage:   flagVerboseUsage,
 					},
 					&cli.StringFlag{
-						Name:  flagDepsFile,
-						Usage: usageDepsFile,
-						Value: defaultDepsFile,
+						Name:  flagDepsFileName,
+						Usage: flagDepsFileUsage,
 					},
 					&cli.StringFlag{
-						Name:  flagDepsURL,
-						Usage: usageDepsURL,
+						Name:  flagDepsURLName,
+						Usage: flagDepsURLUsage,
 					},
 					&cli.BoolFlag{
 						Name:  flagDryRun,
-						Usage: usageDryRun,
+						Usage: flagDryRunName,
 					},
 				},
 				Action: a.Run,

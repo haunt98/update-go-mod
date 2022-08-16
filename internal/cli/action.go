@@ -6,6 +6,10 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+const (
+	defaultDepsFile = ".deps"
+)
+
 type action struct {
 	flags struct {
 		depsFile string
@@ -20,12 +24,18 @@ func (a *action) RunHelp(c *cli.Context) error {
 }
 
 func (a *action) getFlags(c *cli.Context) {
-	a.flags.verbose = c.Bool(flagVerbose)
-	a.flags.depsFile = c.String(flagDepsFile)
-	a.flags.depsURL = c.String(flagDepsURL)
+	a.flags.verbose = c.Bool(flagVerboseName)
+
+	a.flags.depsFile = c.String(flagDepsFileName)
+	if a.flags.depsFile == "" {
+		a.log("Fallback to default deps file [%s]\n", defaultDepsFile)
+		a.flags.depsFile = defaultDepsFile
+	}
+
+	a.flags.depsURL = c.String(flagDepsURLName)
 	a.flags.dryRun = c.Bool(flagDryRun)
 
-	a.log("flags %+v", a.flags)
+	a.log("Flags %+v", a.flags)
 }
 
 func (a *action) log(format string, v ...interface{}) {
