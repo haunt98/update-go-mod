@@ -65,7 +65,12 @@ func (a *action) Run(c *cli.Context) error {
 	successUpgradedModules := make([]Module, 0, defaultCountModule)
 	modulePaths := strings.Split(depsStr, "\n")
 	for _, modulePath := range modulePaths {
-		successUpgradedModules, err = a.runUpgradeModule(c, mapImportedModules, successUpgradedModules, modulePath)
+		successUpgradedModules, err = a.runUpgradeModule(
+			c,
+			mapImportedModules,
+			successUpgradedModules,
+			modulePath,
+		)
 		if err != nil {
 			color.PrintAppError(name, err.Error())
 		}
