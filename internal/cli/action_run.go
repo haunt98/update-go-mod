@@ -42,6 +42,11 @@ type Module struct {
 func (a *action) Run(c *cli.Context) error {
 	a.getFlags(c)
 
+	containingModules, err := a.runGetContainingModules(c)
+	if err != nil {
+		return err
+	}
+
 	mapImportedModules, err := a.runGetImportedModules(c)
 	if err != nil {
 		return err
@@ -68,6 +73,7 @@ func (a *action) Run(c *cli.Context) error {
 	for _, modulePath := range modulePaths {
 		successUpgradedModules, err = a.runUpgradeModule(
 			c,
+			containingModules,
 			mapImportedModules,
 			successUpgradedModules,
 			modulePath,
@@ -86,6 +92,38 @@ func (a *action) Run(c *cli.Context) error {
 	}
 
 	return nil
+}
+
+// Get all package containing modules
+// aka internal modules
+func (a *action) runGetContainingModules(c *cli.Context) (map[string]struct{}, error) {
+	goListAllArgs := []string{"list", "-f", "'{{ .Module }}'", "./..."}
+	goOutput, err := exec.CommandContext(c.Context, "go", goListAllArgs...).CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("failed to run go %+v: %w", strings.Join(goListAllArgs, " "), err)
+	}
+
+	containingModules := make(map[string]struct{})
+	for _, line := range strings.Split(string(goOutput), "\n") {
+		line = strings.TrimSpace(line)
+
+		// Don't know how ' exist in this
+		// After long time debug, I finally found that
+		line = strings.Trim(line, "'")
+
+		if line == "" {
+			continue
+		}
+
+		if _, ok := containingModules[line]; ok {
+			continue
+		}
+
+		containingModules[line] = struct{}{}
+	}
+
+	a.log("Containing modules: %+v\n", containingModules)
+	return containingModules, nil
 }
 
 func (a *action) runGetImportedModules(c *cli.Context) (map[string]Module, error) {
@@ -164,6 +202,7 @@ func (a *action) runReadDepsFile(c *cli.Context) (string, error) {
 
 func (a *action) runUpgradeModule(
 	c *cli.Context,
+	containingModules map[string]struct{},
 	mapImportedModules map[string]Module,
 	successUpgradedModules []Module,
 	modulePath string,
@@ -181,6 +220,12 @@ func (a *action) runUpgradeModule(
 	}
 
 	a.log("Module path: %s\n", modulePath)
+
+	// Ignore if is containing module
+	if _, ok := containingModules[modulePath]; ok {
+		a.log("%s is containing module\n", modulePath)
+		return successUpgradedModules, nil
+	}
 
 	// Ignore not imported module
 	if _, ok := mapImportedModules[modulePath]; !ok {
