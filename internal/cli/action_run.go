@@ -18,8 +18,9 @@ import (
 const (
 	gitDirectory    = ".git"
 	vendorDirectory = "vendor"
-	goModFile       = "go.mod"
-	goSumFile       = "go.sum"
+
+	goModFile = "go.mod"
+	goSumFile = "go.sum"
 
 	defaultCountModule = 100
 	depsFileComment    = "#"
