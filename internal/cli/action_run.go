@@ -106,7 +106,7 @@ func (a *action) runGetImportedModules(c *cli.Context) (map[string]Module, error
 	if err := json.Unmarshal([]byte(goOutputStr), &importedModules); err != nil {
 		return nil, fmt.Errorf("failed to json unmarshal: %w", err)
 	}
-	a.log("Go output: %s", string(goOutput))
+	a.log("Go output: %s\n", string(goOutput))
 
 	mapImportedModules := make(map[string]Module)
 	for _, importedModule := range importedModules {
@@ -180,11 +180,11 @@ func (a *action) runUpgradeModule(
 		return successUpgradedModules, nil
 	}
 
-	a.log("Module path: %s", modulePath)
+	a.log("Module path: %s\n", modulePath)
 
 	// Ignore not imported module
 	if _, ok := mapImportedModules[modulePath]; !ok {
-		a.log("%s is not imported module", modulePath)
+		a.log("%s is not imported module\n", modulePath)
 		return successUpgradedModules, nil
 	}
 
@@ -194,13 +194,13 @@ func (a *action) runUpgradeModule(
 	if err != nil {
 		return successUpgradedModules, fmt.Errorf("failed to run go %+v: %w", strings.Join(goListArgs, " "), err)
 	}
-	a.log("Go output: %s", string(goOutput))
+	a.log("Go output: %s\n", string(goOutput))
 
 	module := Module{}
 	if err := json.Unmarshal(goOutput, &module); err != nil {
 		return successUpgradedModules, fmt.Errorf("failed to json unmarshal: %w", err)
 	}
-	a.log("Module: %+v", module)
+	a.log("Module: %+v\n", module)
 
 	if module.Update == nil {
 		color.PrintAppOK(name, fmt.Sprintf("You already have latest [%s] version [%s]", module.Path, module.Version))
@@ -220,7 +220,7 @@ func (a *action) runUpgradeModule(
 	if err != nil {
 		return successUpgradedModules, fmt.Errorf("failed to run go %+v: %w", strings.Join(goGetArgs, " "), err)
 	}
-	a.log("Go output: %s", string(goOutput))
+	a.log("Go output: %s\n", string(goOutput))
 
 	successUpgradedModules = append(successUpgradedModules, module)
 
@@ -240,7 +240,7 @@ func (a *action) runGoMod(c *cli.Context, existVendor bool) error {
 	if err != nil {
 		return fmt.Errorf("failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
 	}
-	a.log("Go output: %s", string(goOutput))
+	a.log("Go output: %s\n", string(goOutput))
 
 	if existVendor {
 		// go mod vendor
@@ -249,7 +249,7 @@ func (a *action) runGoMod(c *cli.Context, existVendor bool) error {
 		if err != nil {
 			return fmt.Errorf("failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
 		}
-		a.log("Go output: %s", string(goOutput))
+		a.log("Go output: %s\n", string(goOutput))
 	}
 
 	return nil
@@ -283,7 +283,7 @@ func (a *action) runGitCommit(c *cli.Context, successUpgradedModules []Module, e
 	if err != nil {
 		return fmt.Errorf("failed to run git %+v: %w", strings.Join(gitAddArgs, " "), err)
 	}
-	a.log("Git output: %s", string(gitOutput))
+	a.log("Git output: %s\n", string(gitOutput))
 
 	// git commit
 	gitCommitMessage := "build: upgrade modules\n"
@@ -295,7 +295,7 @@ func (a *action) runGitCommit(c *cli.Context, successUpgradedModules []Module, e
 	if err != nil {
 		return fmt.Errorf("failed to run git %+v: %w", strings.Join(gitCommitArgs, " "), err)
 	}
-	a.log("Git output: %s", string(gitOutput))
+	a.log("Git output: %s\n", string(gitOutput))
 
 	return nil
 }

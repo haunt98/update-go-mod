@@ -35,7 +35,7 @@ func (a *action) getFlags(c *cli.Context) {
 	a.flags.depsURL = c.String(flagDepsURLName)
 	a.flags.dryRun = c.Bool(flagDryRun)
 
-	a.log("Flags %+v", a.flags)
+	a.log("Flags %+v\n", a.flags)
 }
 
 func (a *action) log(format string, v ...interface{}) {
