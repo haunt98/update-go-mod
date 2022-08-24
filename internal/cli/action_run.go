@@ -22,6 +22,7 @@ const (
 	goSumFile       = "go.sum"
 
 	defaultCountModule = 100
+	depsFileComment    = "#"
 )
 
 var (
@@ -156,10 +157,18 @@ func (a *action) runUpgradeModule(
 	modulePath string,
 ) ([]Module, error) {
 	modulePath = strings.TrimSpace(modulePath)
+
+	// Ignore empty
 	if modulePath == "" {
 		return successUpgradedModules, nil
 	}
-	a.log("Line: %s", modulePath)
+
+	// Ignore comment
+	if strings.HasPrefix(modulePath, depsFileComment) {
+		return successUpgradedModules, nil
+	}
+
+	a.log("Module path: %s", modulePath)
 
 	// Check if modulePath is imported module, otherwise skip
 	if _, ok := mapImportedModules[modulePath]; !ok {
