@@ -20,6 +20,9 @@ const (
 	vendorDirectory = "vendor"
 	goModFile       = "go.mod"
 	goSumFile       = "go.sum"
+
+	defaultCountModule = 100
+	depsFileComment    = "#"
 )
 
 var (
@@ -58,7 +61,7 @@ func (a *action) Run(c *cli.Context) error {
 	}
 
 	// Read deps file line by line to upgrade
-	successUpgradedModules := make([]Module, 0, 100)
+	successUpgradedModules := make([]Module, 0, defaultCountModule)
 	modulePaths := strings.Split(depsStr, "\n")
 	for _, modulePath := range modulePaths {
 		successUpgradedModules, err = a.runUpgradeModule(c, mapImportedModules, successUpgradedModules, modulePath)
@@ -92,7 +95,7 @@ func (a *action) runGetImportedModules(c *cli.Context) (map[string]struct{}, err
 	goOutputStr = strings.ReplaceAll(goOutputStr, "}{", "},{")
 	goOutputStr = "[" + goOutputStr + "]"
 
-	importedModules := make([]Module, 0, 100)
+	importedModules := make([]Module, 0, defaultCountModule)
 	if err := json.Unmarshal([]byte(goOutputStr), &importedModules); err != nil {
 		return nil, fmt.Errorf("failed to json unmarshal: %w", err)
 	}
@@ -154,10 +157,18 @@ func (a *action) runUpgradeModule(
 	modulePath string,
 ) ([]Module, error) {
 	modulePath = strings.TrimSpace(modulePath)
+
+	// Ignore empty
 	if modulePath == "" {
 		return successUpgradedModules, nil
 	}
-	a.log("Line: %s", modulePath)
+
+	// Ignore comment
+	if strings.HasPrefix(modulePath, depsFileComment) {
+		return successUpgradedModules, nil
+	}
+
+	a.log("Module path: %s", modulePath)
 
 	// Check if modulePath is imported module, otherwise skip
 	if _, ok := mapImportedModules[modulePath]; !ok {
@@ -186,6 +197,8 @@ func (a *action) runUpgradeModule(
 
 	// Upgrade module
 	if a.flags.dryRun {
+		// Only print which module will be upgrade
+		// Don't do anything
 		color.PrintAppOK(name, fmt.Sprintf("Will upgrade [%s] version [%s] to [%s]", module.Path, module.Version, module.Update.Version))
 		return successUpgradedModules, nil
 	}
