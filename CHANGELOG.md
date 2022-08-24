@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## v0.3.0 (2022-08-24)
+
+### Added
+
+- feat: ignore containing modules (2022-08-24)
+
+- feat: ignore replace module (2022-08-24)
+
+### Others
+
+- chore: new line after a.log (2022-08-24)
+
+- refactor: better read func (2022-08-24)
+
+- chore: update typo (2022-08-24)
+
+- Merge pull request #2 from haunt98/deps-comment (2022-08-24)
+
+- chore: update github action (2022-08-16)
+
+- chore(changelog): generate v0.2.2 (2022-08-16)
+
 ## v0.2.2 (2022-08-16)
 
 ### Fixed
