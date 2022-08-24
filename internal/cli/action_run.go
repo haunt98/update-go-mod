@@ -197,6 +197,8 @@ func (a *action) runUpgradeModule(
 
 	// Upgrade module
 	if a.flags.dryRun {
+		// Only print which module will be upgrade
+		// Don't do anything
 		color.PrintAppOK(name, fmt.Sprintf("Will upgrade [%s] version [%s] to [%s]", module.Path, module.Version, module.Update.Version))
 		return successUpgradedModules, nil
 	}
