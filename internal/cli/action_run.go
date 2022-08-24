@@ -34,6 +34,7 @@ var (
 // See https://pkg.go.dev/cmd/go#hdr-List_packages_or_modules
 type Module struct {
 	Update  *Module
+	Replace *Module
 	Path    string
 	Version string
 }
@@ -87,7 +88,7 @@ func (a *action) Run(c *cli.Context) error {
 	return nil
 }
 
-func (a *action) runGetImportedModules(c *cli.Context) (map[string]struct{}, error) {
+func (a *action) runGetImportedModules(c *cli.Context) (map[string]Module, error) {
 	// Get all imported modules
 	goListAllArgs := []string{"list", "-m", "-json", "all"}
 	goOutput, err := exec.CommandContext(c.Context, "go", goListAllArgs...).CombinedOutput()
@@ -107,9 +108,14 @@ func (a *action) runGetImportedModules(c *cli.Context) (map[string]struct{}, err
 	}
 	a.log("Go output: %s", string(goOutput))
 
-	mapImportedModules := make(map[string]struct{})
+	mapImportedModules := make(map[string]Module)
 	for _, importedModule := range importedModules {
-		mapImportedModules[importedModule.Path] = struct{}{}
+		// Ignore replace module
+		if importedModule.Replace != nil {
+			continue
+		}
+
+		mapImportedModules[importedModule.Path] = importedModule
 	}
 	a.log("Imported modules: %+v\n", importedModules)
 
@@ -158,7 +164,7 @@ func (a *action) runReadDepsFile(c *cli.Context) (string, error) {
 
 func (a *action) runUpgradeModule(
 	c *cli.Context,
-	mapImportedModules map[string]struct{},
+	mapImportedModules map[string]Module,
 	successUpgradedModules []Module,
 	modulePath string,
 ) ([]Module, error) {
@@ -176,7 +182,7 @@ func (a *action) runUpgradeModule(
 
 	a.log("Module path: %s", modulePath)
 
-	// Check if modulePath is imported module, otherwise skip
+	// Ignore not imported module
 	if _, ok := mapImportedModules[modulePath]; !ok {
 		a.log("%s is not imported module", modulePath)
 		return successUpgradedModules, nil
@@ -203,7 +209,7 @@ func (a *action) runUpgradeModule(
 
 	// Upgrade module
 	if a.flags.dryRun {
-		// Only print which module will be upgrade
+		// Only print which module will be upgraded
 		// Don't do anything
 		color.PrintAppOK(name, fmt.Sprintf("Will upgrade [%s] version [%s] to [%s]", module.Path, module.Version, module.Update.Version))
 		return successUpgradedModules, nil
