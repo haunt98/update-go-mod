@@ -16,14 +16,12 @@ output:
 linters:
   disable-all: true
   enable:
-    - deadcode
     - errcheck
     - gosimple
     - govet
     - staticcheck
     - typecheck
     - unused
-    - varcheck
     - errname
     - errorlint
     - execinquery
