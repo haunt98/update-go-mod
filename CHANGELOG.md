@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.3.1 (2022-08-29)
+
+### Added
+
+- feat: get main module using go list -m -json (2022-08-29)
+
+### Others
+
+- chore: update golangci-lint config (2022-08-29)
+
+- chore(changelog): generate v0.3.0 (2022-08-24)
+
 ## v0.3.0 (2022-08-24)
 
 ### Added
