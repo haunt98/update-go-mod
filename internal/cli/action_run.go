@@ -42,11 +42,6 @@ type Module struct {
 func (a *action) Run(c *cli.Context) error {
 	a.getFlags(c)
 
-	containingModules, err := a.runGetContainingModules(c)
-	if err != nil {
-		return err
-	}
-
 	mapImportedModules, err := a.runGetImportedModules(c)
 	if err != nil {
 		return err
@@ -73,7 +68,6 @@ func (a *action) Run(c *cli.Context) error {
 	for _, modulePath := range modulePaths {
 		successUpgradedModules, err = a.runUpgradeModule(
 			c,
-			containingModules,
 			mapImportedModules,
 			successUpgradedModules,
 			modulePath,
@@ -94,44 +88,24 @@ func (a *action) Run(c *cli.Context) error {
 	return nil
 }
 
-// Get all package containing modules
-// aka internal modules
-func (a *action) runGetContainingModules(c *cli.Context) (map[string]struct{}, error) {
-	goListAllArgs := []string{"list", "-f", "'{{ .Module }}'", "./..."}
-	goOutput, err := exec.CommandContext(c.Context, "go", goListAllArgs...).CombinedOutput()
-	if err != nil {
-		return nil, fmt.Errorf("failed to run go %+v: %w", strings.Join(goListAllArgs, " "), err)
-	}
-
-	containingModules := make(map[string]struct{})
-	for _, line := range strings.Split(string(goOutput), "\n") {
-		line = strings.TrimSpace(line)
-
-		// Don't know how ' exist in this
-		// After long time debug, I finally found that
-		line = strings.Trim(line, "'")
-
-		if line == "" {
-			continue
-		}
-
-		if _, ok := containingModules[line]; ok {
-			continue
-		}
-
-		containingModules[line] = struct{}{}
-	}
-
-	a.log("Containing modules: %+v\n", containingModules)
-	return containingModules, nil
-}
-
+// Get all imported modules
 func (a *action) runGetImportedModules(c *cli.Context) (map[string]Module, error) {
-	// Get all imported modules
-	goListAllArgs := []string{"list", "-m", "-json", "all"}
-	goOutput, err := exec.CommandContext(c.Context, "go", goListAllArgs...).CombinedOutput()
+	// https://go.dev/ref/mod#go-list-m
+	goListMainModuleArgs := []string{"list", "-m", "-json"}
+	goOutput, err := exec.CommandContext(c.Context, "go", goListMainModuleArgs...).CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("failed to run go %+v: %w", strings.Join(goListAllArgs, " "), err)
+		return nil, fmt.Errorf("failed to run go %s: %w", strings.Join(goListMainModuleArgs, " "), err)
+	}
+
+	mainModule := Module{}
+	if err := json.Unmarshal(goOutput, &mainModule); err != nil {
+		return nil, fmt.Errorf("json: failed to unmarshal go output: %w", err)
+	}
+
+	goListAllArgs := []string{"list", "-m", "-json", "all"}
+	goOutput, err = exec.CommandContext(c.Context, "go", goListAllArgs...).CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("failed to run go %s: %w", strings.Join(goListAllArgs, " "), err)
 	}
 
 	// goAllOutput is like {...}\n{...}\n{...}
@@ -155,6 +129,10 @@ func (a *action) runGetImportedModules(c *cli.Context) (map[string]Module, error
 
 		mapImportedModules[importedModule.Path] = importedModule
 	}
+
+	// imported modules also includes main module so we need to remove
+	delete(mapImportedModules, mainModule.Path)
+
 	a.log("Imported modules: %+v\n", importedModules)
 
 	return mapImportedModules, nil
@@ -202,7 +180,6 @@ func (a *action) runReadDepsFile(c *cli.Context) (string, error) {
 
 func (a *action) runUpgradeModule(
 	c *cli.Context,
-	containingModules map[string]struct{},
 	mapImportedModules map[string]Module,
 	successUpgradedModules []Module,
 	modulePath string,
@@ -220,12 +197,6 @@ func (a *action) runUpgradeModule(
 	}
 
 	a.log("Module path: %s\n", modulePath)
-
-	// Ignore if is containing module
-	if _, ok := containingModules[modulePath]; ok {
-		a.log("%s is containing module\n", modulePath)
-		return successUpgradedModules, nil
-	}
 
 	// Ignore not imported module
 	if _, ok := mapImportedModules[modulePath]; !ok {
