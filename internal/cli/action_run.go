@@ -33,10 +33,12 @@ var (
 
 // See https://pkg.go.dev/cmd/go#hdr-List_packages_or_modules
 type Module struct {
-	Update  *Module
-	Replace *Module
-	Path    string
-	Version string
+	Update   *Module
+	Replace  *Module
+	Path     string
+	Version  string
+	Main     bool
+	Indirect bool
 }
 
 func (a *action) Run(c *cli.Context) error {
@@ -90,20 +92,8 @@ func (a *action) Run(c *cli.Context) error {
 
 // Get all imported modules
 func (a *action) runGetImportedModules(c *cli.Context) (map[string]Module, error) {
-	// https://go.dev/ref/mod#go-list-m
-	goListMainModuleArgs := []string{"list", "-m", "-json"}
-	goOutput, err := exec.CommandContext(c.Context, "go", goListMainModuleArgs...).CombinedOutput()
-	if err != nil {
-		return nil, fmt.Errorf("failed to run go %s: %w", strings.Join(goListMainModuleArgs, " "), err)
-	}
-
-	mainModule := Module{}
-	if err := json.Unmarshal(goOutput, &mainModule); err != nil {
-		return nil, fmt.Errorf("json: failed to unmarshal go output: %w", err)
-	}
-
 	goListAllArgs := []string{"list", "-m", "-json", "all"}
-	goOutput, err = exec.CommandContext(c.Context, "go", goListAllArgs...).CombinedOutput()
+	goOutput, err := exec.CommandContext(c.Context, "go", goListAllArgs...).CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("failed to run go %s: %w", strings.Join(goListAllArgs, " "), err)
 	}
@@ -122,6 +112,16 @@ func (a *action) runGetImportedModules(c *cli.Context) (map[string]Module, error
 
 	mapImportedModules := make(map[string]Module)
 	for _, importedModule := range importedModules {
+		// Ignore main module
+		if importedModule.Main {
+			continue
+		}
+
+		// Ignore indirect module
+		if importedModule.Indirect {
+			continue
+		}
+
 		// Ignore replace module
 		if importedModule.Replace != nil {
 			continue
@@ -129,9 +129,6 @@ func (a *action) runGetImportedModules(c *cli.Context) (map[string]Module, error
 
 		mapImportedModules[importedModule.Path] = importedModule
 	}
-
-	// imported modules also includes main module so we need to remove
-	delete(mapImportedModules, mainModule.Path)
 
 	a.log("Imported modules: %+v\n", importedModules)
 
