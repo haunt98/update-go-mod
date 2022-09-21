@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## v0.4.0 (2022-09-22)
+
+### Added
+
+- feat: ignore main, indirect module using Module struct (2022-09-22)
+
+### Others
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.16.2 to 2.16.3 (2022-09-13)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.14.1 to 2.16.2 (2022-09-12)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.14.0 to 2.14.1 (2022-09-06)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.11.2 to 2.14.0 (2022-09-02)
+
+- chore(changelog): generate v0.3.1 (2022-08-29)
+
 ## v0.3.1 (2022-08-29)
 
 ### Added
