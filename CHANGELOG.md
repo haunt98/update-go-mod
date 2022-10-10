@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.4.1 (2022-10-10)
+
+### Others
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.17.1 to 2.19.2 (2022-10-10)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.16.3 to 2.17.1 (2022-09-30)
+
+- chore(changelog): generate v0.4.0 (2022-09-22)
+
 ## v0.4.0 (2022-09-22)
 
 ### Added
