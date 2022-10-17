@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/make-go-great/color-go v0.4.1
-	github.com/urfave/cli/v2 v2.19.2
+	github.com/urfave/cli/v2 v2.20.2
 )
 
 require (
