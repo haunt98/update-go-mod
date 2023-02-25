@@ -55,7 +55,7 @@ func (a *action) Run(c *cli.Context) error {
 		existVendor = true
 	}
 
-	depsStr, err := a.runReadDepsFile(c)
+	depsStr, useDepFile, err := a.runReadDepsFile(c)
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func (a *action) Run(c *cli.Context) error {
 		return err
 	}
 
-	if err := a.runGitCommit(c, successUpgradedModules, existVendor); err != nil {
+	if err := a.runGitCommit(c, successUpgradedModules, existVendor, useDepFile); err != nil {
 		return err
 	}
 
@@ -135,30 +135,31 @@ func (a *action) runGetImportedModules(c *cli.Context) (map[string]Module, error
 	return mapImportedModules, nil
 }
 
-func (a *action) runReadDepsFile(c *cli.Context) (string, error) {
+// Return deps file content and useDepFile or not
+func (a *action) runReadDepsFile(c *cli.Context) (string, bool, error) {
 	// Try to read from url first
 	if a.flags.depsURL != "" {
 		depsURL, err := url.Parse(a.flags.depsURL)
 		if err != nil {
-			return "", fmt.Errorf("failed to parse deps file url %s: %w", a.flags.depsURL, err)
+			return "", false, fmt.Errorf("failed to parse deps file url %s: %w", a.flags.depsURL, err)
 		}
 
 		httpRsp, err := http.Get(depsURL.String())
 		if err != nil {
-			return "", fmt.Errorf("failed to http get %s: %w", depsURL.String(), err)
+			return "", false, fmt.Errorf("failed to http get %s: %w", depsURL.String(), err)
 		}
 		defer httpRsp.Body.Close()
 
 		if httpRsp.StatusCode != http.StatusOK {
-			return "", fmt.Errorf("http status code not ok %d: %w", httpRsp.StatusCode, ErrFailedStatusCode)
+			return "", false, fmt.Errorf("http status code not ok %d: %w", httpRsp.StatusCode, ErrFailedStatusCode)
 		}
 
 		depsBytes, err := io.ReadAll(httpRsp.Body)
 		if err != nil {
-			return "", fmt.Errorf("failed to read http response body: %w", err)
+			return "", false, fmt.Errorf("failed to read http response body: %w", err)
 		}
 
-		return strings.TrimSpace(string(depsBytes)), nil
+		return strings.TrimSpace(string(depsBytes)), false, nil
 	}
 
 	// If empty url, try to read from file
@@ -166,13 +167,13 @@ func (a *action) runReadDepsFile(c *cli.Context) (string, error) {
 	if err != nil {
 		if os.IsNotExist(err) {
 			color.PrintAppWarning(name, fmt.Sprintf("deps file [%s] not found", a.flags.depsFile))
-			return "", nil
+			return "", false, nil
 		}
 
-		return "", fmt.Errorf("failed to read file %s: %w", a.flags.depsFile, err)
+		return "", false, fmt.Errorf("failed to read file %s: %w", a.flags.depsFile, err)
 	}
 
-	return strings.TrimSpace(string(depsBytes)), nil
+	return strings.TrimSpace(string(depsBytes)), true, nil
 }
 
 func (a *action) runUpgradeModule(
@@ -268,7 +269,7 @@ func (a *action) runGoMod(c *cli.Context, existVendor bool) error {
 	return nil
 }
 
-func (a *action) runGitCommit(c *cli.Context, successUpgradedModules []Module, existVendor bool) error {
+func (a *action) runGitCommit(c *cli.Context, successUpgradedModules []Module, existVendor, useDepFile bool) error {
 	if a.flags.dryRun {
 		return nil
 	}
@@ -292,6 +293,10 @@ func (a *action) runGitCommit(c *cli.Context, successUpgradedModules []Module, e
 	if existVendor {
 		gitAddArgs = append(gitAddArgs, vendorDirectory)
 	}
+	if useDepFile {
+		gitAddArgs = append(gitAddArgs, a.flags.depsFile)
+	}
+
 	gitOutput, err := exec.CommandContext(c.Context, "git", gitAddArgs...).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("failed to run git %+v: %w", strings.Join(gitAddArgs, " "), err)
