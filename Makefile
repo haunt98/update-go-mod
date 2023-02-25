@@ -1,6 +1,8 @@
 .PHONY: all test-color lint
 
-all: test-color lint
+all:
+	$(MAKE) test-color
+	$(MAKE) lint
 	go mod tidy
 
 test-color:
