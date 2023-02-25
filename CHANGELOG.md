@@ -1,5 +1,47 @@
 # CHANGELOG
 
+## v0.5.0 (2023-02-25)
+
+### Added
+
+- feat: git commit deps file (2023-02-25)
+
+### Others
+
+- chore: format file (2023-02-25)
+
+- chore: fix lint (2023-02-25)
+
+- chore: bump go 1.20 github action (2023-02-25)
+
+- chore: cleanup Makefile (2023-02-25)
+
+- chore(deps): bump golang.org/x/sys (2023-02-25)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.24.3 to 2.24.4 (2023-02-17)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.24.2 to 2.24.3 (2023-02-03)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.24.1 to 2.24.2 (2023-01-30)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.23.7 to 2.24.1 (2023-01-23)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.23.6 to 2.23.7 (2022-12-12)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.23.5 to 2.23.6 (2022-12-05)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.23.4 to 2.23.5 (2022-11-09)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.23.0 to 2.23.4 (2022-11-08)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.20.3 to 2.23.0 (2022-10-31)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.20.2 to 2.20.3 (2022-10-24)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.19.2 to 2.20.2 (2022-10-17)
+
+- chore(changelog): generate v0.4.1 (2022-10-10)
+
 ## v0.4.1 (2022-10-10)
 
 ### Others
