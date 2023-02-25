@@ -1,4 +1,4 @@
-.PHONY: all test-color lint
+.PHONY: all test-color lint format build clean
 
 all:
 	go mod tidy
