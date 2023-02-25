@@ -135,8 +135,7 @@ func (a *action) runGetImportedModules(c *cli.Context) (map[string]Module, error
 	return mapImportedModules, nil
 }
 
-// Return deps file content and useDepFile or not
-func (a *action) runReadDepsFile(c *cli.Context) (string, bool, error) {
+func (a *action) runReadDepsFile(c *cli.Context) (depsStr string, useDepFile bool, err error) {
 	// Try to read from url first
 	if a.flags.depsURL != "" {
 		depsURL, err := url.Parse(a.flags.depsURL)
