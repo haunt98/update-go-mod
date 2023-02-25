@@ -11,8 +11,9 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/make-go-great/color-go"
 	"github.com/urfave/cli/v2"
+
+	"github.com/make-go-great/color-go"
 )
 
 const (
