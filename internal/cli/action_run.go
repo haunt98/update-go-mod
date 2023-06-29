@@ -144,6 +144,7 @@ func (a *action) runReadDepsFile(c *cli.Context) (depsStr string, useDepFile boo
 			return "", false, fmt.Errorf("failed to parse deps file url %s: %w", a.flags.depsURL, err)
 		}
 
+		// nolint:noctx
 		httpRsp, err := http.Get(depsURL.String())
 		if err != nil {
 			return "", false, fmt.Errorf("failed to http get %s: %w", depsURL.String(), err)
