@@ -23,6 +23,10 @@ update-go-mod --deps-url "https://example.txt"
 
 # Don't do anythin
 update-go-mod --dry-run
+
+# Take a look
+# Require GitHub access token in ~/.netrc
+update-go-mod overlook
 ```
 
 ## Thanks
