@@ -3,6 +3,7 @@ package cli
 import (
 	"log"
 
+	"github.com/google/go-github/v53/github"
 	"github.com/urfave/cli/v2"
 )
 
@@ -11,7 +12,8 @@ const (
 )
 
 type action struct {
-	flags struct {
+	ghClient *github.Client
+	flags    struct {
 		depsFile string
 		depsURL  string
 		verbose  bool
