@@ -16,6 +16,9 @@ const (
 	commandRunName  = "run"
 	commandRunUsage = "run the program"
 
+	commandOverlookName  = "overlook"
+	commandOverlookUsage = "take a quick lock"
+
 	flagVerboseName  = "verbose"
 	flagVerboseUsage = "show what is going on"
 
@@ -32,14 +35,15 @@ const (
 var aliasFlagVerbose = []string{"v"}
 
 type App struct {
-	cliApp   *cli.App
-	ghClient *github.Client
+	cliApp *cli.App
 }
 
 func NewApp(
 	ghClient *github.Client,
 ) *App {
-	a := &action{}
+	a := &action{
+		ghClient: ghClient,
+	}
 
 	cliApp := &cli.App{
 		Name:  name,
@@ -69,13 +73,24 @@ func NewApp(
 				},
 				Action: a.Run,
 			},
+			{
+				Name:  commandOverlookName,
+				Usage: commandOverlookUsage,
+				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name:    flagVerboseName,
+						Aliases: aliasFlagVerbose,
+						Usage:   flagVerboseUsage,
+					},
+				},
+				Action: a.Overlook,
+			},
 		},
 		Action: a.RunHelp,
 	}
 
 	return &App{
-		cliApp:   cliApp,
-		ghClient: ghClient,
+		cliApp: cliApp,
 	}
 }
 
