@@ -21,7 +21,7 @@ update-go-mod
 # Read from URL
 update-go-mod --deps-url "https://example.txt"
 
-# Don't do anythin
+# Don't do anything
 update-go-mod --dry-run
 
 # Take a look
