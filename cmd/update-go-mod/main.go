@@ -18,29 +18,37 @@ const (
 )
 
 func main() {
-	// Prepare GitHub
-	var ghClient *github.Client
-	netrcData, err := netrc.ParseFile(netrcPath)
-	if err == nil {
-		var ghAccessToken string
-		for _, machine := range netrcData.Machines {
-			if machine.Name == netrcMachineGitHub {
-				ghAccessToken = machine.Password
-				break
-			}
-		}
+	app := cli.NewApp(
+		initGitHubClient(),
+	)
+	app.Run()
+}
 
-		if ghAccessToken != "" {
-			ghTokenSrc := oauth2.StaticTokenSource(
-				&oauth2.Token{
-					AccessToken: strings.TrimSpace(ghAccessToken),
-				},
-			)
-			ghHTTPClient := oauth2.NewClient(context.Background(), ghTokenSrc)
-			ghClient = github.NewClient(ghHTTPClient)
+func initGitHubClient() *github.Client {
+	netrcData, err := netrc.ParseFile(netrcPath)
+	if err != nil {
+		return nil
+	}
+
+	var ghAccessToken string
+	for _, machine := range netrcData.Machines {
+		if machine.Name == netrcMachineGitHub {
+			ghAccessToken = machine.Password
+			break
 		}
 	}
 
-	app := cli.NewApp(ghClient)
-	app.Run()
+	if ghAccessToken == "" {
+		return nil
+	}
+
+	ghTokenSrc := oauth2.StaticTokenSource(
+		&oauth2.Token{
+			AccessToken: strings.TrimSpace(ghAccessToken),
+		},
+	)
+	ghHTTPClient := oauth2.NewClient(context.Background(), ghTokenSrc)
+	ghClient := github.NewClient(ghHTTPClient)
+
+	return ghClient
 }
