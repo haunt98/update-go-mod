@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.6.1 (2023-08-16)
+
+### Added
+
+- feat: replace last update with last commit (2023-08-16)
+
+### Others
+
+- chore: fix typo (2023-08-15)
+
+- chore(changelog): generate v0.6.0 (2023-08-15)
+
 ## v0.6.0 (2023-08-15)
 
 ### Added
