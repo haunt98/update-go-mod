@@ -3,6 +3,7 @@ package cli
 import (
 	"os"
 
+	"github.com/google/go-github/v53/github"
 	"github.com/urfave/cli/v2"
 
 	"github.com/make-go-great/color-go"
@@ -31,10 +32,13 @@ const (
 var aliasFlagVerbose = []string{"v"}
 
 type App struct {
-	cliApp *cli.App
+	cliApp   *cli.App
+	ghClient *github.Client
 }
 
-func NewApp() *App {
+func NewApp(
+	ghClient *github.Client,
+) *App {
 	a := &action{}
 
 	cliApp := &cli.App{
@@ -70,7 +74,8 @@ func NewApp() *App {
 	}
 
 	return &App{
-		cliApp: cliApp,
+		cliApp:   cliApp,
+		ghClient: ghClient,
 	}
 }
 
