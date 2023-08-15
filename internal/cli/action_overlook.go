@@ -2,12 +2,22 @@ package cli
 
 import (
 	"fmt"
+	"os"
 	"regexp"
+	"sort"
+	"text/tabwriter"
+	"time"
 
 	"github.com/urfave/cli/v2"
 )
 
 var reGitHub = regexp.MustCompile(`github\.com/([^/]*)/([^/]*)`)
+
+type GitHubRepoData struct {
+	UpdatedAt time.Time
+	Name      string
+	Star      int
+}
 
 func (a *action) Overlook(c *cli.Context) error {
 	a.getFlags(c)
@@ -16,6 +26,14 @@ func (a *action) Overlook(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+
+	if len(mapImportedModules) == 0 {
+		return nil
+	}
+
+	listGHRepoData := make([]GitHubRepoData, 0, len(mapImportedModules))
+	// To avoid duplicate
+	mGHRepoData := make(map[string]struct{})
 
 	for module := range mapImportedModules {
 		if !reGitHub.MatchString(module) {
@@ -27,6 +45,12 @@ func (a *action) Overlook(c *cli.Context) error {
 			continue
 		}
 
+		ghRepoName := parts[0]
+		if _, ok := mGHRepoData[ghRepoName]; ok {
+			continue
+		}
+		mGHRepoData[ghRepoName] = struct{}{}
+
 		owner := parts[1]
 		repo := parts[2]
 
@@ -35,12 +59,35 @@ func (a *action) Overlook(c *cli.Context) error {
 			a.log("Failed to get GitHub %s/%s: %s\n", owner, repo, err)
 		}
 
-		starCount := 0
+		var ghStar int
 		if ghRepo.StargazersCount != nil {
-			starCount = *ghRepo.StargazersCount
+			ghStar = *ghRepo.StargazersCount
 		}
-		fmt.Printf("Module %s: Star %d\n", module, starCount)
+
+		var ghUpdatedAt time.Time
+		if ghRepo.UpdatedAt != nil {
+			ghUpdatedAt = ghRepo.UpdatedAt.Time
+		}
+
+		listGHRepoData = append(listGHRepoData, GitHubRepoData{
+			UpdatedAt: ghUpdatedAt,
+			Name:      ghRepoName,
+			Star:      ghStar,
+		})
+
 	}
+
+	// Sort for consistency
+	sort.Slice(listGHRepoData, func(i, j int) bool {
+		return listGHRepoData[i].Name < listGHRepoData[j].Name
+	})
+
+	// Print
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+	for _, r := range listGHRepoData {
+		fmt.Fprintf(w, "Module %s\t%d\t⭐\tLast updated %s\n", r.Name, r.Star, r.UpdatedAt.Format(time.DateOnly))
+	}
+	w.Flush()
 
 	return nil
 }
