@@ -1,5 +1,59 @@
 # CHANGELOG
 
+## v0.6.0 (2023-08-15)
+
+### Added
+
+- feat: use conc pool to speed up (2023-08-15)
+
+- feat: make github client optional (2023-08-15)
+
+- feat: print consistency with tabwriter (2023-08-15)
+
+- feat: print star of module (2023-08-15)
+
+- feat: add github client (2023-08-15)
+
+### Others
+
+- refactor: move init github client (2023-08-15)
+
+- chore(deps): bump github.com/make-go-great/color-go from 0.4.1 to 0.5.0 (2023-07-17)
+
+- chore: update github action (2023-07-01)
+
+- chore: sync golangci-lint (2023-06-29)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.25.6 to 2.25.7 (2023-06-19)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.25.5 to 2.25.6 (2023-06-13)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.25.4 to 2.25.5 (2023-05-30)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.25.3 to 2.25.4 (2023-05-29)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.25.2 to 2.25.3 (2023-05-02)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.25.1 to 2.25.2 (2023-05-01)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.25.0 to 2.25.1 (2023-03-27)
+
+- chore(deps): bump actions/setup-go from 3 to 4 (2023-03-22)
+
+- chore(deps): bump goreleaser/goreleaser-action from 3 to 4 (2023-03-22)
+
+- chore: update dependabot (2023-03-22)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.24.4 to 2.25.0 (2023-03-06)
+
+- chore: update make (2023-02-26)
+
+- chore: update lint (2023-02-25)
+
+- chore: run go mod tidy first (2023-02-25)
+
+- chore(changelog): generate v0.5.0 (2023-02-25)
+
 ## v0.5.0 (2023-02-25)
 
 ### Added
