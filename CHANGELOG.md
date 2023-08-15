@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.6.2 (2023-08-16)
+
+### Added
+
+- feat: round star count to k (2023-08-16)
+
+### Others
+
+- chore(changelog): generate v0.6.1 (2023-08-16)
+
 ## v0.6.1 (2023-08-16)
 
 ### Added
