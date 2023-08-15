@@ -10,6 +10,7 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/google/go-github/v53/github"
 	"github.com/sourcegraph/conc/pool"
 	"github.com/urfave/cli/v2"
 )
@@ -19,9 +20,9 @@ const maxPoolGoroutine = 8
 var reGitHub = regexp.MustCompile(`github\.com/([^/]*)/([^/]*)`)
 
 type GitHubRepoData struct {
-	UpdatedAt time.Time
-	Name      string
-	Star      int
+	LastCommitAt time.Time
+	Name         string
+	StarCount    int
 }
 
 func (a *action) Overlook(c *cli.Context) error {
@@ -51,6 +52,8 @@ func (a *action) Overlook(c *cli.Context) error {
 	for module := range mapImportedModules {
 		module := module
 		p.Go(func() {
+			ctx := context.Background()
+
 			if !reGitHub.MatchString(module) {
 				return
 			}
@@ -60,41 +63,55 @@ func (a *action) Overlook(c *cli.Context) error {
 				return
 			}
 
-			ghRepoName := parts[0]
+			name := parts[0]
 			mMutex.RLock()
-			if _, ok := mGHRepoData[ghRepoName]; ok {
+			if _, ok := mGHRepoData[name]; ok {
 				mMutex.RUnlock()
 				return
 			}
 			mMutex.RUnlock()
 
 			mMutex.Lock()
-			mGHRepoData[ghRepoName] = struct{}{}
+			mGHRepoData[name] = struct{}{}
 			mMutex.Unlock()
 
 			owner := parts[1]
 			repo := parts[2]
 
-			ghRepo, _, err := a.ghClient.Repositories.Get(context.Background(), owner, repo)
+			ghRepo, _, err := a.ghClient.Repositories.Get(ctx, owner, repo)
 			if err != nil {
-				a.log("Failed to get GitHub %s/%s: %s\n", owner, repo, err)
+				a.log("GitHub failed to get repo %s/%s: %s\n", owner, repo, err)
 			}
 
-			var ghStar int
+			var starCount int
 			if ghRepo.StargazersCount != nil {
-				ghStar = *ghRepo.StargazersCount
+				starCount = *ghRepo.StargazersCount
 			}
 
-			var ghUpdatedAt time.Time
-			if ghRepo.UpdatedAt != nil {
-				ghUpdatedAt = ghRepo.UpdatedAt.Time
+			ghCommits, _, err := a.ghClient.Repositories.ListCommits(ctx, owner, repo, &github.CommitsListOptions{
+				ListOptions: github.ListOptions{
+					Page:    1,
+					PerPage: 1,
+				},
+			})
+			if err != nil {
+				a.log("GitHub failed to get commits %s/%s: %s\n", owner, repo, err)
+			}
+
+			var lastCommitAt time.Time
+			if len(ghCommits) != 0 {
+				if ghCommits[0].Commit != nil &&
+					ghCommits[0].Commit.Author != nil &&
+					ghCommits[0].Commit.Author.Date != nil {
+					lastCommitAt = ghCommits[0].Commit.Author.Date.Time
+				}
 			}
 
 			listMutex.Lock()
 			listGHRepoData = append(listGHRepoData, GitHubRepoData{
-				UpdatedAt: ghUpdatedAt,
-				Name:      ghRepoName,
-				Star:      ghStar,
+				LastCommitAt: lastCommitAt,
+				Name:         name,
+				StarCount:    starCount,
 			})
 			listMutex.Unlock()
 		})
@@ -109,7 +126,7 @@ func (a *action) Overlook(c *cli.Context) error {
 	// Print
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	for _, r := range listGHRepoData {
-		fmt.Fprintf(w, "Module %s\t%d\t⭐\tLast updated %s\n", r.Name, r.Star, r.UpdatedAt.Format(time.DateOnly))
+		fmt.Fprintf(w, "Module %s\t%d\t⭐\tLast commit %s\n", r.Name, r.StarCount, r.LastCommitAt.Format(time.DateOnly))
 	}
 	w.Flush()
 
