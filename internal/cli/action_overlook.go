@@ -1,15 +1,20 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"regexp"
 	"sort"
+	"sync"
 	"text/tabwriter"
 	"time"
 
+	"github.com/sourcegraph/conc/pool"
 	"github.com/urfave/cli/v2"
 )
+
+const maxPoolGoroutine = 8
 
 var reGitHub = regexp.MustCompile(`github\.com/([^/]*)/([^/]*)`)
 
@@ -40,47 +45,61 @@ func (a *action) Overlook(c *cli.Context) error {
 	// To avoid duplicate
 	mGHRepoData := make(map[string]struct{})
 
+	p := pool.New().WithMaxGoroutines(maxPoolGoroutine)
+	var mMutex sync.RWMutex
+	var listMutex sync.Mutex
 	for module := range mapImportedModules {
-		if !reGitHub.MatchString(module) {
-			continue
-		}
+		module := module
+		p.Go(func() {
+			if !reGitHub.MatchString(module) {
+				return
+			}
 
-		parts := reGitHub.FindStringSubmatch(module)
-		if len(parts) != 3 {
-			continue
-		}
+			parts := reGitHub.FindStringSubmatch(module)
+			if len(parts) != 3 {
+				return
+			}
 
-		ghRepoName := parts[0]
-		if _, ok := mGHRepoData[ghRepoName]; ok {
-			continue
-		}
-		mGHRepoData[ghRepoName] = struct{}{}
+			ghRepoName := parts[0]
+			mMutex.RLock()
+			if _, ok := mGHRepoData[ghRepoName]; ok {
+				mMutex.RUnlock()
+				return
+			}
+			mMutex.RUnlock()
 
-		owner := parts[1]
-		repo := parts[2]
+			mMutex.Lock()
+			mGHRepoData[ghRepoName] = struct{}{}
+			mMutex.Unlock()
 
-		ghRepo, _, err := a.ghClient.Repositories.Get(c.Context, owner, repo)
-		if err != nil {
-			a.log("Failed to get GitHub %s/%s: %s\n", owner, repo, err)
-		}
+			owner := parts[1]
+			repo := parts[2]
 
-		var ghStar int
-		if ghRepo.StargazersCount != nil {
-			ghStar = *ghRepo.StargazersCount
-		}
+			ghRepo, _, err := a.ghClient.Repositories.Get(context.Background(), owner, repo)
+			if err != nil {
+				a.log("Failed to get GitHub %s/%s: %s\n", owner, repo, err)
+			}
 
-		var ghUpdatedAt time.Time
-		if ghRepo.UpdatedAt != nil {
-			ghUpdatedAt = ghRepo.UpdatedAt.Time
-		}
+			var ghStar int
+			if ghRepo.StargazersCount != nil {
+				ghStar = *ghRepo.StargazersCount
+			}
 
-		listGHRepoData = append(listGHRepoData, GitHubRepoData{
-			UpdatedAt: ghUpdatedAt,
-			Name:      ghRepoName,
-			Star:      ghStar,
+			var ghUpdatedAt time.Time
+			if ghRepo.UpdatedAt != nil {
+				ghUpdatedAt = ghRepo.UpdatedAt.Time
+			}
+
+			listMutex.Lock()
+			listGHRepoData = append(listGHRepoData, GitHubRepoData{
+				UpdatedAt: ghUpdatedAt,
+				Name:      ghRepoName,
+				Star:      ghStar,
+			})
+			listMutex.Unlock()
 		})
-
 	}
+	p.Wait()
 
 	// Sort for consistency
 	sort.Slice(listGHRepoData, func(i, j int) bool {
