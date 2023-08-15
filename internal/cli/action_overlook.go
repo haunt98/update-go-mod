@@ -20,6 +20,11 @@ type GitHubRepoData struct {
 }
 
 func (a *action) Overlook(c *cli.Context) error {
+	// Optional
+	if a.ghClient == nil {
+		return nil
+	}
+
 	a.getFlags(c)
 
 	mapImportedModules, err := a.runGetImportedModules(c)

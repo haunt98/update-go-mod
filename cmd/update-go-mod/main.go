@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"log"
 	"strings"
 
 	"github.com/google/go-github/v53/github"
@@ -20,29 +19,27 @@ const (
 
 func main() {
 	// Prepare GitHub
+	var ghClient *github.Client
 	netrcData, err := netrc.ParseFile(netrcPath)
-	if err != nil {
-		log.Fatalln("Failed to read file netrc", err)
-	}
+	if err == nil {
+		var ghAccessToken string
+		for _, machine := range netrcData.Machines {
+			if machine.Name == netrcMachineGitHub {
+				ghAccessToken = machine.Password
+				break
+			}
+		}
 
-	var ghAccessToken string
-	for _, machine := range netrcData.Machines {
-		if machine.Name == netrcMachineGitHub {
-			ghAccessToken = machine.Password
-			break
+		if ghAccessToken != "" {
+			ghTokenSrc := oauth2.StaticTokenSource(
+				&oauth2.Token{
+					AccessToken: strings.TrimSpace(ghAccessToken),
+				},
+			)
+			ghHTTPClient := oauth2.NewClient(context.Background(), ghTokenSrc)
+			ghClient = github.NewClient(ghHTTPClient)
 		}
 	}
-	if ghAccessToken == "" {
-		log.Fatalln("Empty GitHub token in netrc")
-	}
-
-	ghTokenSrc := oauth2.StaticTokenSource(
-		&oauth2.Token{
-			AccessToken: strings.TrimSpace(ghAccessToken),
-		},
-	)
-	ghHTTPClient := oauth2.NewClient(context.Background(), ghTokenSrc)
-	ghClient := github.NewClient(ghHTTPClient)
 
 	app := cli.NewApp(ghClient)
 	app.Run()
