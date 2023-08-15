@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/go-github/v53/github"
 	"github.com/sourcegraph/conc/pool"
+	"github.com/spf13/cast"
 	"github.com/urfave/cli/v2"
 )
 
@@ -126,9 +127,19 @@ func (a *action) Overlook(c *cli.Context) error {
 	// Print
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	for _, r := range listGHRepoData {
-		fmt.Fprintf(w, "Module %s\t%d\t⭐\tLast commit %s\n", r.Name, r.StarCount, r.LastCommitAt.Format(time.DateOnly))
+		fmt.Fprintf(w, "Module %s\t%s\t⭐\tLast commit %s\n", r.Name, roundK(r.StarCount), r.LastCommitAt.Format(time.DateOnly))
 	}
 	w.Flush()
 
 	return nil
+}
+
+// Nearest thounsand
+// 1234 -> 1K
+func roundK(v int) string {
+	if v < 1000 {
+		return cast.ToString(v)
+	}
+
+	return fmt.Sprintf("%dK", v/1000)
 }
