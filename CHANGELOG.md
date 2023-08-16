@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.6.3 (2023-08-16)
+
+### Others
+
+- chore(deps): bump golang.org/x/oauth2 from 0.8.0 to 0.11.0 (2023-08-16)
+
+- chore(changelog): generate v0.6.2 (2023-08-16)
+
 ## v0.6.2 (2023-08-16)
 
 ### Added
