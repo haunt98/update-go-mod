@@ -48,7 +48,7 @@ func (a *action) Overlook(c *cli.Context) error {
 	mGHRepoData := make(map[string]struct{})
 
 	p := pool.New().WithMaxGoroutines(maxPoolGoroutine)
-	var mMutex sync.RWMutex
+	var mMutex sync.Mutex
 	var listMutex sync.Mutex
 	for module := range mapImportedModules {
 		module := module
@@ -65,14 +65,11 @@ func (a *action) Overlook(c *cli.Context) error {
 			}
 
 			name := parts[0]
-			mMutex.RLock()
+			mMutex.Lock()
 			if _, ok := mGHRepoData[name]; ok {
-				mMutex.RUnlock()
+				mMutex.Unlock()
 				return
 			}
-			mMutex.RUnlock()
-
-			mMutex.Lock()
 			mGHRepoData[name] = struct{}{}
 			mMutex.Unlock()
 
