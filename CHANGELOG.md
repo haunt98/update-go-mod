@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.6.4 (2023-08-19)
+
+### Added
+
+- feat: use mutex instead of rwmutex (2023-08-19)
+
+### Others
+
+- build: bump go-github v54 (2023-08-17)
+
+- chore(changelog): generate v0.6.3 (2023-08-16)
+
 ## v0.6.3 (2023-08-16)
 
 ### Others
