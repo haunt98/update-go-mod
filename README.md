@@ -12,7 +12,8 @@ go install github.com/haunt98/update-go-mod/cmd/update-go-mod@latest
 
 ## Usage
 
-Create local file `.deps` or use url depends on your use case:
+Create local file `.deps` ([example](.deps)) or use url depends on your use
+case:
 
 ```sh
 # Default read from .deps
@@ -32,3 +33,4 @@ update-go-mod overlook
 ## Thanks
 
 - [Managing dependencies](https://go.dev/doc/modules/managing-dependencies)
+- [Bash one liners](https://blog.fredrb.com/2023/08/13/bash-one-liner-gomod/)
