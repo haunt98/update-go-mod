@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.6.5 (2023-09-06)
+
+### Others
+
+- build: bump go-github v55 (2023-09-06)
+
+- chore(deps): bump actions/checkout from 3 to 4 (2023-09-05)
+
+- chore: update readme (2023-08-19)
+
+- chore(changelog): generate v0.6.4 (2023-08-19)
+
 ## v0.6.4 (2023-08-19)
 
 ### Added
