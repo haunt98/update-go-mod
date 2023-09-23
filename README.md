@@ -1,5 +1,8 @@
 # update-go-mod
 
+[![Go](https://github.com/haunt98/update-go-mod/workflows/Go/badge.svg?branch=main)](https://github.com/haunt98/update-go-mod/actions)
+[![Latest Version](https://img.shields.io/github/v/tag/haunt98/update-go-mod)](https://github.com/haunt98/update-go-mod/tags)
+
 Only upgrade specific subset not all modules.
 
 ## Install
