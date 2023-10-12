@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## v0.6.6 (2023-10-12)
+
+### Others
+
+- build: bump go-github v56 (2023-10-12)
+
+- chore(deps): bump golang.org/x/net from 0.16.0 to 0.17.0 (2023-10-12)
+
+- chore(deps): bump golang.org/x/oauth2 from 0.12.0 to 0.13.0 (2023-10-09)
+
+- chore: add badges (2023-09-23)
+
+- chore(deps): bump goreleaser/goreleaser-action from 4 to 5 (2023-09-12)
+
+- chore(deps): bump golang.org/x/oauth2 from 0.11.0 to 0.12.0 (2023-09-06)
+
+- chore(changelog): generate v0.6.5 (2023-09-06)
+
 ## v0.6.5 (2023-09-06)
 
 ### Others
