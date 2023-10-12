@@ -3,7 +3,7 @@ package cli
 import (
 	"os"
 
-	"github.com/google/go-github/v55/github"
+	"github.com/google/go-github/v56/github"
 	"github.com/urfave/cli/v2"
 
 	"github.com/make-go-great/color-go"

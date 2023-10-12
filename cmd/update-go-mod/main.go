@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/google/go-github/v55/github"
+	"github.com/google/go-github/v56/github"
 	"golang.org/x/oauth2"
 
 	"github.com/make-go-great/netrc-go"
