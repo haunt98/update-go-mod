@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.6.7 (2023-11-29)
+
+### Others
+
+- chore(deps): bump github.com/spf13/cast from 1.5.1 to 1.6.0 (2023-11-29)
+
+- chore(deps): bump golang.org/x/oauth2 from 0.14.0 to 0.15.0 (2023-11-28)
+
+- chore(deps): bump golang.org/x/oauth2 from 0.13.0 to 0.14.0 (2023-11-09)
+
+- chore(changelog): generate v0.6.6 (2023-10-12)
+
 ## v0.6.6 (2023-10-12)
 
 ### Others
