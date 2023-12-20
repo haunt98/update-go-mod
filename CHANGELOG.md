@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.6.8 (2023-12-21)
+
+### Others
+
+- chore(deps): bump actions/setup-go from 4 to 5 (2023-12-07)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.25.7 to 2.26.0 (2023-12-04)
+
+- build: bump go-github v57 (2023-12-02)
+
+- chore(changelog): generate v0.6.7 (2023-11-29)
+
 ## v0.6.7 (2023-11-29)
 
 ### Others
