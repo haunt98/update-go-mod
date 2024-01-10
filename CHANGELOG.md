@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.6.9 (2024-01-10)
+
+### Others
+
+- Merge branch 'main' of https://github.com/haunt98/update-go-mod (2024-01-10)
+
+- build: bump go-github v58 (2024-01-10)
+
+- chore: go fix (2023-12-21)
+
+- chore(changelog): generate v0.6.8 (2023-12-21)
+
 ## v0.6.8 (2023-12-21)
 
 ### Others
