@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## v0.6.10 (2024-03-21)
+
+### Others
+
+- chore: disable go install (2024-03-21)
+
+- chore(deps): bump google.golang.org/protobuf from 1.31.0 to 1.33.0 (#52) (2024-03-14)
+
+- chore(deps): bump golang.org/x/oauth2 from 0.17.0 to 0.18.0 (#51) (2024-03-05)
+
+- chore: remove go fix (2024-03-01)
+
+- Merge branch 'main' of https://github.com/haunt98/update-go-mod (2024-03-01)
+
+- build: bump go-github v60 (2024-03-01)
+
+- chore(deps): bump golang.org/x/oauth2 from 0.16.0 to 0.17.0 (#49) (2024-02-10)
+
+- build: bump go-github v59 (2024-02-10)
+
+- chore(changelog): generate v0.6.9 (2024-01-10)
+
 ## v0.6.9 (2024-01-10)
 
 ### Others
