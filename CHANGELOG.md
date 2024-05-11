@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.6.11 (2024-05-11)
+
+### Others
+
+- Merge branch 'main' of https://github.com/haunt98/update-go-mod (2024-05-11)
+
+- chore: sync golangci-lint config (2024-05-11)
+
+- build: bump go-github to v62 (2024-05-11)
+
+- chore(changelog): generate v0.6.10 (2024-03-21)
+
 ## v0.6.10 (2024-03-21)
 
 ### Others
