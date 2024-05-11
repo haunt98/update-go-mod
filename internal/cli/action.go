@@ -3,7 +3,7 @@ package cli
 import (
 	"log"
 
-	"github.com/google/go-github/v60/github"
+	"github.com/google/go-github/v62/github"
 	"github.com/urfave/cli/v2"
 )
 
