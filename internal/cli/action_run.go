@@ -56,7 +56,7 @@ func (a *action) Run(c *cli.Context) error {
 		existVendor = true
 	}
 
-	depsStr, useDepFile, err := a.runReadDepsFile(c)
+	depsStr, useDepFile, err := a.runReadDepsFile()
 	if err != nil {
 		return err
 	}
@@ -119,7 +119,7 @@ func (a *action) runGetImportedModules(c *cli.Context) (map[string]Module, error
 		}
 
 		// Ignore indirect module
-		if importedModule.Indirect {
+		if importedModule.Indirect && !a.flags.forceIndirect {
 			continue
 		}
 
@@ -136,7 +136,7 @@ func (a *action) runGetImportedModules(c *cli.Context) (map[string]Module, error
 	return mapImportedModules, nil
 }
 
-func (a *action) runReadDepsFile(c *cli.Context) (depsStr string, useDepFile bool, err error) {
+func (a *action) runReadDepsFile() (depsStr string, useDepFile bool, err error) {
 	// Try to read from url first
 	if a.flags.depsURL != "" {
 		depsURL, err := url.Parse(a.flags.depsURL)

@@ -14,10 +14,11 @@ const (
 type action struct {
 	ghClient *github.Client
 	flags    struct {
-		depsFile string
-		depsURL  string
-		verbose  bool
-		dryRun   bool
+		depsFile      string
+		depsURL       string
+		verbose       bool
+		dryRun        bool
+		forceIndirect bool
 	}
 }
 
@@ -36,6 +37,7 @@ func (a *action) getFlags(c *cli.Context) {
 
 	a.flags.depsURL = c.String(flagDepsURLName)
 	a.flags.dryRun = c.Bool(flagDryRun)
+	a.flags.forceIndirect = c.Bool(flagForceIndirectName)
 
 	a.log("Flags %+v\n", a.flags)
 }

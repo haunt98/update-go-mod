@@ -30,6 +30,9 @@ const (
 
 	flagDryRun     = "dry-run"
 	flagDryRunName = "demo what would be done"
+
+	flagForceIndirectName  = "force-indirect"
+	flagForceIndirectUsage = "force update indirect module"
 )
 
 var aliasFlagVerbose = []string{"v"}
@@ -69,6 +72,10 @@ func NewApp(
 					&cli.BoolFlag{
 						Name:  flagDryRun,
 						Usage: flagDryRunName,
+					},
+					&cli.BoolFlag{
+						Name:  flagForceIndirectName,
+						Usage: flagForceIndirectUsage,
 					},
 				},
 				Action: a.Run,
