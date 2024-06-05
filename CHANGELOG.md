@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## v0.7.0 (2024-06-06)
+
+### Added
+
+- feat: add flag force-indirect (2024-06-06)
+
+### Others
+
+- chore(deps): bump golang.org/x/oauth2 from 0.20.0 to 0.21.0 (#59) (2024-06-05)
+
+- chore(deps): bump goreleaser/goreleaser-action from 5 to 6 (#58) (2024-06-05)
+
+- chore(changelog): generate v0.6.11 (2024-05-11)
+
 ## v0.6.11 (2024-05-11)
 
 ### Others
