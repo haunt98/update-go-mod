@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.7.4 (2024-06-10)
+
+### Others
+
+- chore: fix goreleaser (2024-06-10)
+
+- chore(changelog): generate v0.7.3 (2024-06-10)
+
 ## v0.7.3 (2024-06-10)
 
 ### Others
