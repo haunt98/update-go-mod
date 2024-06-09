@@ -1,16 +1,6 @@
 version: 2
-before:
-  hooks:
-    - go mod tidy
 builds:
   - main: ./cmd/update-go-mod
-    goos:
-      - linux
-      - windows
-      - darwin
-    goarch:
-      - amd64
-      - arm64
 universal_binaries:
   - replace: true
 archives:
