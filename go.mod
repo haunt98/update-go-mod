@@ -3,7 +3,7 @@ module github.com/haunt98/update-go-mod
 go 1.21
 
 require (
-	github.com/google/go-github/v63 v63.0.0
+	github.com/google/go-github/v64 v64.0.0
 	github.com/make-go-great/color-go v0.5.0
 	github.com/make-go-great/netrc-go v0.0.2
 	github.com/sourcegraph/conc v0.3.0
