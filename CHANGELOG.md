@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## v0.7.5 (2024-08-22)
+
+### Others
+
+- chore: migrate to justfile (2024-08-22)
+
+- build: update go-github to v64 (2024-08-21)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.27.3 to 2.27.4 (#63) (2024-08-12)
+
+- chore(deps): bump github.com/spf13/cast from 1.6.0 to 1.7.0 (#62) (2024-08-07)
+
+- chore(deps): bump golang.org/x/oauth2 from 0.21.0 to 0.22.0 (#61) (2024-08-06)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.27.2 to 2.27.3 (#60) (2024-07-25)
+
+- build: bump go-github v62 to v63 (2024-07-12)
+
+- chore: remove goreleaser (2024-06-10)
+
+- chore(changelog): generate v0.7.4 (2024-06-10)
+
 ## v0.7.4 (2024-06-10)
 
 ### Others
