@@ -1,6 +1,6 @@
 module github.com/haunt98/update-go-mod
 
-go 1.21
+go 1.22
 
 require (
 	github.com/google/go-github/v64 v64.0.0
