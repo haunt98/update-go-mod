@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.7.7 (2024-09-13)
+
+### Fixed
+
+- fix: use -mod=readonly for go list (2024-09-13)
+
+### Others
+
+- chore(changelog): generate v0.7.6 (2024-09-13)
+
 ## v0.7.6 (2024-09-13)
 
 ### Fixed
