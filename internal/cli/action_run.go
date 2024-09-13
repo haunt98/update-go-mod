@@ -93,7 +93,7 @@ func (a *action) Run(c *cli.Context) error {
 
 // Get all imported modules
 func (a *action) runGetImportedModules(c *cli.Context) (map[string]Module, error) {
-	goListAllArgs := []string{"list", "-m", "-json", "all"}
+	goListAllArgs := []string{"list", "-m", "-json", "-mod=readonly", "all"}
 	goOutput, err := exec.CommandContext(c.Context, "go", goListAllArgs...).CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("failed to run go %s: %w", strings.Join(goListAllArgs, " "), err)
