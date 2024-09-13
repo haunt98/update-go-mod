@@ -204,7 +204,7 @@ func (a *action) runUpgradeModule(
 	}
 
 	// Get module latest version
-	goListArgs := []string{"list", "-m", "-u", "-json", modulePath}
+	goListArgs := []string{"list", "-m", "-u", "-json", "-mod=readonly", modulePath}
 	goOutput, err := exec.CommandContext(c.Context, "go", goListArgs...).CombinedOutput()
 	if err != nil {
 		return successUpgradedModules, fmt.Errorf("failed to run go %+v: %w", strings.Join(goListArgs, " "), err)
