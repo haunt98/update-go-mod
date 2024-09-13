@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.7.6 (2024-09-13)
+
+### Fixed
+
+- fix: run with exist vendor (2024-09-13)
+
+### Others
+
+- chore(deps): bump golang.org/x/oauth2 from 0.22.0 to 0.23.0 (#64) (2024-09-05)
+
+- chore(changelog): generate v0.7.5 (2024-08-22)
+
 ## v0.7.5 (2024-08-22)
 
 ### Others
