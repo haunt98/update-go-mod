@@ -8,12 +8,12 @@ require (
 	github.com/make-go-great/netrc-go v0.0.2
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/cast v1.7.0
-	github.com/urfave/cli/v2 v2.27.4
+	github.com/urfave/cli/v2 v2.27.5
 	golang.org/x/oauth2 v0.23.0
 )
 
 require (
-	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.5 // indirect
 	github.com/fatih/color v1.15.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
