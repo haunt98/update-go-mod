@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -11,6 +10,7 @@ import (
 	"os/exec"
 	"strings"
 
+	"github.com/bytedance/sonic"
 	"github.com/urfave/cli/v2"
 
 	"github.com/make-go-great/color-go"
@@ -96,7 +96,7 @@ func (a *action) runGetImportedModules(c *cli.Context) (map[string]*Module, erro
 	goListAllArgs := []string{"list", "-m", "-json", "-mod=readonly", "all"}
 	goOutput, err := exec.CommandContext(c.Context, "go", goListAllArgs...).CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("failed to run go %s: %w", strings.Join(goListAllArgs, " "), err)
+		return nil, fmt.Errorf("exec: failed to run go %s: %w", strings.Join(goListAllArgs, " "), err)
 	}
 
 	// goAllOutput is like {...}\n{...}\n{...}
@@ -106,8 +106,8 @@ func (a *action) runGetImportedModules(c *cli.Context) (map[string]*Module, erro
 	goOutputStr = "[" + goOutputStr + "]"
 
 	importedModules := make([]*Module, 0, defaultCountModule)
-	if err := json.Unmarshal([]byte(goOutputStr), &importedModules); err != nil {
-		return nil, fmt.Errorf("failed to json unmarshal: %w", err)
+	if err := sonic.UnmarshalString(goOutputStr, &importedModules); err != nil {
+		return nil, fmt.Errorf("sonic: failed to unmarshal: %w", err)
 	}
 	a.log("Go output: %s\n", string(goOutput))
 
@@ -141,23 +141,23 @@ func (a *action) runReadDepsFile() (depsStr string, useDepFile bool, err error) 
 	if a.flags.depsURL != "" {
 		depsURL, err := url.Parse(a.flags.depsURL)
 		if err != nil {
-			return "", false, fmt.Errorf("failed to parse deps file url %s: %w", a.flags.depsURL, err)
+			return "", false, fmt.Errorf("url: failed to parse %s: %w", a.flags.depsURL, err)
 		}
 
 		// nolint:noctx
 		httpRsp, err := http.Get(depsURL.String())
 		if err != nil {
-			return "", false, fmt.Errorf("failed to http get %s: %w", depsURL.String(), err)
+			return "", false, fmt.Errorf("http: failed to get %s: %w", depsURL.String(), err)
 		}
 		defer httpRsp.Body.Close()
 
 		if httpRsp.StatusCode != http.StatusOK {
-			return "", false, fmt.Errorf("http status code not ok %d: %w", httpRsp.StatusCode, ErrFailedStatusCode)
+			return "", false, fmt.Errorf("http: status code not ok %d: %w", httpRsp.StatusCode, ErrFailedStatusCode)
 		}
 
 		depsBytes, err := io.ReadAll(httpRsp.Body)
 		if err != nil {
-			return "", false, fmt.Errorf("failed to read http response body: %w", err)
+			return "", false, fmt.Errorf("io: failed to read all: %w", err)
 		}
 
 		return strings.TrimSpace(string(depsBytes)), false, nil
@@ -167,11 +167,11 @@ func (a *action) runReadDepsFile() (depsStr string, useDepFile bool, err error) 
 	depsBytes, err := os.ReadFile(a.flags.depsFile)
 	if err != nil {
 		if os.IsNotExist(err) {
-			color.PrintAppWarning(name, fmt.Sprintf("deps file [%s] not found", a.flags.depsFile))
+			color.PrintAppWarning(name, fmt.Sprintf("[%s] not found", a.flags.depsFile))
 			return "", false, nil
 		}
 
-		return "", false, fmt.Errorf("failed to read file %s: %w", a.flags.depsFile, err)
+		return "", false, fmt.Errorf("os: failed to read file %s: %w", a.flags.depsFile, err)
 	}
 
 	return strings.TrimSpace(string(depsBytes)), true, nil
@@ -207,13 +207,13 @@ func (a *action) runUpgradeModule(
 	goListArgs := []string{"list", "-m", "-u", "-json", "-mod=readonly", modulePath}
 	goOutput, err := exec.CommandContext(c.Context, "go", goListArgs...).CombinedOutput()
 	if err != nil {
-		return successUpgradedModules, fmt.Errorf("failed to run go %+v: %w", strings.Join(goListArgs, " "), err)
+		return successUpgradedModules, fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goListArgs, " "), err)
 	}
 	a.log("Go output: %s\n", string(goOutput))
 
 	module := &Module{}
-	if err := json.Unmarshal(goOutput, module); err != nil {
-		return successUpgradedModules, fmt.Errorf("failed to json unmarshal: %w", err)
+	if err := sonic.Unmarshal(goOutput, module); err != nil {
+		return successUpgradedModules, fmt.Errorf("sonic: failed to unmarshal: %w", err)
 	}
 	a.log("Module: %+v\n", module)
 
@@ -233,7 +233,7 @@ func (a *action) runUpgradeModule(
 	goGetArgs := []string{"get", "-d", modulePath + "@" + module.Update.Version}
 	goOutput, err = exec.CommandContext(c.Context, "go", goGetArgs...).CombinedOutput()
 	if err != nil {
-		return successUpgradedModules, fmt.Errorf("failed to run go %+v: %w", strings.Join(goGetArgs, " "), err)
+		return successUpgradedModules, fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goGetArgs, " "), err)
 	}
 	a.log("Go output: %s\n", string(goOutput))
 
@@ -253,7 +253,7 @@ func (a *action) runGoMod(c *cli.Context, existVendor bool) error {
 	goModArgs := []string{"mod", "tidy"}
 	goOutput, err := exec.CommandContext(c.Context, "go", goModArgs...).CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
+		return fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
 	}
 	a.log("Go output: %s\n", string(goOutput))
 
@@ -262,7 +262,7 @@ func (a *action) runGoMod(c *cli.Context, existVendor bool) error {
 		goModArgs = []string{"mod", "vendor"}
 		goOutput, err = exec.CommandContext(c.Context, "go", goModArgs...).CombinedOutput()
 		if err != nil {
-			return fmt.Errorf("failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
+			return fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
 		}
 		a.log("Go output: %s\n", string(goOutput))
 	}
@@ -274,12 +274,12 @@ func (a *action) runReadGoMod() (*GoMod, error) {
 	goModArgs := []string{"mod", "edit", "-json"}
 	goOutput, err := exec.Command("go", goModArgs...).CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
+		return nil, fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
 	}
 
 	goMod := &GoMod{}
-	if err := json.Unmarshal(goOutput, goMod); err != nil {
-		return nil, fmt.Errorf("failed to json unmarshal: %w", err)
+	if err := sonic.Unmarshal(goOutput, goMod); err != nil {
+		return nil, fmt.Errorf("sonic: failed to unmarshal: %w", err)
 	}
 	a.log("Go output: %s\n", string(goOutput))
 
@@ -305,7 +305,7 @@ func (a *action) runGitCommit(c *cli.Context, successUpgradedModules []*Module, 
 			return nil
 		}
 
-		return fmt.Errorf("failed to stat %s: %w", gitDirectory, err)
+		return fmt.Errorf("os: failed to stat %s: %w", gitDirectory, err)
 	}
 
 	// If there is no upgrade module, stop
@@ -324,7 +324,7 @@ func (a *action) runGitCommit(c *cli.Context, successUpgradedModules []*Module, 
 
 	gitOutput, err := exec.CommandContext(c.Context, "git", gitAddArgs...).CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("failed to run git %+v: %w", strings.Join(gitAddArgs, " "), err)
+		return fmt.Errorf("exec: failed to run git %+v: %w", strings.Join(gitAddArgs, " "), err)
 	}
 	a.log("Git output: %s\n", string(gitOutput))
 
@@ -336,7 +336,7 @@ func (a *action) runGitCommit(c *cli.Context, successUpgradedModules []*Module, 
 	gitCommitArgs := []string{"commit", "-m", gitCommitMessage}
 	gitOutput, err = exec.CommandContext(c.Context, "git", gitCommitArgs...).CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("failed to run git %+v: %w", strings.Join(gitCommitArgs, " "), err)
+		return fmt.Errorf("exec: failed to run git %+v: %w", strings.Join(gitCommitArgs, " "), err)
 	}
 	a.log("Git output: %s\n", string(gitOutput))
 
