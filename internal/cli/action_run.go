@@ -32,16 +32,6 @@ var (
 	ErrFailedStatusCode     = errors.New("failed status code")
 )
 
-// See https://pkg.go.dev/cmd/go#hdr-List_packages_or_modules
-type Module struct {
-	Update   *Module
-	Replace  *Module
-	Path     string
-	Version  string
-	Main     bool
-	Indirect bool
-}
-
 func (a *action) Run(c *cli.Context) error {
 	a.getFlags(c)
 
@@ -66,7 +56,7 @@ func (a *action) Run(c *cli.Context) error {
 	}
 
 	// Read deps file line by line to upgrade
-	successUpgradedModules := make([]Module, 0, defaultCountModule)
+	successUpgradedModules := make([]*Module, 0, defaultCountModule)
 	modulePaths := strings.Split(depsStr, "\n")
 	for _, modulePath := range modulePaths {
 		successUpgradedModules, err = a.runUpgradeModule(
@@ -92,7 +82,7 @@ func (a *action) Run(c *cli.Context) error {
 }
 
 // Get all imported modules
-func (a *action) runGetImportedModules(c *cli.Context) (map[string]Module, error) {
+func (a *action) runGetImportedModules(c *cli.Context) (map[string]*Module, error) {
 	goListAllArgs := []string{"list", "-m", "-json", "-mod=readonly", "all"}
 	goOutput, err := exec.CommandContext(c.Context, "go", goListAllArgs...).CombinedOutput()
 	if err != nil {
@@ -105,13 +95,13 @@ func (a *action) runGetImportedModules(c *cli.Context) (map[string]Module, error
 	goOutputStr = strings.ReplaceAll(goOutputStr, "}{", "},{")
 	goOutputStr = "[" + goOutputStr + "]"
 
-	importedModules := make([]Module, 0, defaultCountModule)
+	importedModules := make([]*Module, 0, defaultCountModule)
 	if err := json.Unmarshal([]byte(goOutputStr), &importedModules); err != nil {
 		return nil, fmt.Errorf("failed to json unmarshal: %w", err)
 	}
 	a.log("Go output: %s\n", string(goOutput))
 
-	mapImportedModules := make(map[string]Module)
+	mapImportedModules := make(map[string]*Module)
 	for _, importedModule := range importedModules {
 		// Ignore main module
 		if importedModule.Main {
@@ -179,10 +169,10 @@ func (a *action) runReadDepsFile() (depsStr string, useDepFile bool, err error) 
 
 func (a *action) runUpgradeModule(
 	c *cli.Context,
-	mapImportedModules map[string]Module,
-	successUpgradedModules []Module,
+	mapImportedModules map[string]*Module,
+	successUpgradedModules []*Module,
 	modulePath string,
-) ([]Module, error) {
+) ([]*Module, error) {
 	modulePath = strings.TrimSpace(modulePath)
 
 	// Ignore empty
@@ -211,8 +201,8 @@ func (a *action) runUpgradeModule(
 	}
 	a.log("Go output: %s\n", string(goOutput))
 
-	module := Module{}
-	if err := json.Unmarshal(goOutput, &module); err != nil {
+	module := &Module{}
+	if err := json.Unmarshal(goOutput, module); err != nil {
 		return successUpgradedModules, fmt.Errorf("failed to json unmarshal: %w", err)
 	}
 	a.log("Module: %+v\n", module)
@@ -270,7 +260,7 @@ func (a *action) runGoMod(c *cli.Context, existVendor bool) error {
 	return nil
 }
 
-func (a *action) runGitCommit(c *cli.Context, successUpgradedModules []Module, existVendor, useDepFile bool) error {
+func (a *action) runGitCommit(c *cli.Context, successUpgradedModules []*Module, existVendor, useDepFile bool) error {
 	if a.flags.dryRun {
 		return nil
 	}
