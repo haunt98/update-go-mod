@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## v0.8.0 (2024-11-01)
+
+### Added
+
+- feat: try to remove toolchain first (2024-11-01)
+
+- feat: use sonic to unmarshal json (2024-11-01)
+
+- feat: do not allow toolchain in go.mod (2024-11-01)
+
+### Others
+
+- chore: use pointer for Module struct (2024-11-01)
+
+- chore: sync lint (2024-10-26)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.27.4 to 2.27.5 (#65) (2024-10-14)
+
+- build: update go-github to v65 (2024-09-16)
+
+- chore(changelog): generate v0.7.7 (2024-09-13)
+
 ## v0.7.7 (2024-09-13)
 
 ### Fixed
