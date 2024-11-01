@@ -30,6 +30,7 @@ const (
 var (
 	ErrInvalidModuleVersion = errors.New("invalid module version")
 	ErrFailedStatusCode     = errors.New("failed status code")
+	ErrGoModExistToolchain  = errors.New("go mod exist toolchain")
 )
 
 func (a *action) Run(c *cli.Context) error {
@@ -71,6 +72,15 @@ func (a *action) Run(c *cli.Context) error {
 	}
 
 	if err := a.runGoMod(c, existVendor); err != nil {
+		return err
+	}
+
+	goMod, err := a.runReadGoMod()
+	if err != nil {
+		return err
+	}
+
+	if err := a.runVerifyGoMod(goMod); err != nil {
 		return err
 	}
 
@@ -255,6 +265,30 @@ func (a *action) runGoMod(c *cli.Context, existVendor bool) error {
 			return fmt.Errorf("failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
 		}
 		a.log("Go output: %s\n", string(goOutput))
+	}
+
+	return nil
+}
+
+func (a *action) runReadGoMod() (*GoMod, error) {
+	goModArgs := []string{"mod", "edit", "-json"}
+	goOutput, err := exec.Command("go", goModArgs...).CombinedOutput()
+	if err != nil {
+		return nil, fmt.Errorf("failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
+	}
+
+	goMod := &GoMod{}
+	if err := json.Unmarshal(goOutput, goMod); err != nil {
+		return nil, fmt.Errorf("failed to json unmarshal: %w", err)
+	}
+	a.log("Go output: %s\n", string(goOutput))
+
+	return goMod, nil
+}
+
+func (a *action) runVerifyGoMod(goMod *GoMod) error {
+	if goMod.Toolchain != "" {
+		return ErrGoModExistToolchain
 	}
 
 	return nil
