@@ -75,15 +75,6 @@ func (a *action) Run(c *cli.Context) error {
 		return err
 	}
 
-	goMod, err := a.runReadGoMod()
-	if err != nil {
-		return err
-	}
-
-	if err := a.runVerifyGoMod(goMod); err != nil {
-		return err
-	}
-
 	if err := a.runGitCommit(c, successUpgradedModules, existVendor, useDepFile); err != nil {
 		return err
 	}
@@ -249,8 +240,14 @@ func (a *action) runGoMod(c *cli.Context, existVendor bool) error {
 		return nil
 	}
 
+	// go mod edit -toolchain=none
+	goModArgs := []string{"mod", "edit", "-toolchain=none"}
+	if _, err := exec.CommandContext(c.Context, "go", goModArgs...).CombinedOutput(); err != nil {
+		return fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
+	}
+
 	// go mod tidy
-	goModArgs := []string{"mod", "tidy"}
+	goModArgs = []string{"mod", "tidy"}
 	goOutput, err := exec.CommandContext(c.Context, "go", goModArgs...).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
@@ -265,6 +262,15 @@ func (a *action) runGoMod(c *cli.Context, existVendor bool) error {
 			return fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
 		}
 		a.log("Go output: %s\n", string(goOutput))
+	}
+
+	goMod, err := a.runReadGoMod()
+	if err != nil {
+		return err
+	}
+
+	if goMod.Toolchain != "" {
+		return ErrGoModExistToolchain
 	}
 
 	return nil
@@ -284,14 +290,6 @@ func (a *action) runReadGoMod() (*GoMod, error) {
 	a.log("Go output: %s\n", string(goOutput))
 
 	return goMod, nil
-}
-
-func (a *action) runVerifyGoMod(goMod *GoMod) error {
-	if goMod.Toolchain != "" {
-		return ErrGoModExistToolchain
-	}
-
-	return nil
 }
 
 func (a *action) runGitCommit(c *cli.Context, successUpgradedModules []*Module, existVendor, useDepFile bool) error {
