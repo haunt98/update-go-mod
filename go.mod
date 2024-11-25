@@ -3,7 +3,7 @@ module github.com/haunt98/update-go-mod
 go 1.22
 
 require (
-	github.com/bytedance/sonic v1.12.4
+	github.com/bytedance/sonic v1.12.5
 	github.com/google/go-github/v65 v65.0.0
 	github.com/make-go-great/color-go v0.5.0
 	github.com/make-go-great/netrc-go v0.0.2
