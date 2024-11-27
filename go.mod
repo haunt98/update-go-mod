@@ -4,7 +4,7 @@ go 1.22
 
 require (
 	github.com/bytedance/sonic v1.12.5
-	github.com/google/go-github/v65 v65.0.0
+	github.com/google/go-github/v67 v67.0.0
 	github.com/make-go-great/color-go v0.5.0
 	github.com/make-go-great/netrc-go v0.0.2
 	github.com/sourcegraph/conc v0.3.0
