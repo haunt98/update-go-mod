@@ -1,10 +1,12 @@
 module github.com/haunt98/update-go-mod
 
-go 1.22
+go 1.22.0
+
+toolchain go1.23.6
 
 require (
 	github.com/bytedance/sonic v1.12.8
-	github.com/google/go-github/v68 v68.0.0
+	github.com/google/go-github/v69 v69.0.0
 	github.com/make-go-great/color-go v0.5.0
 	github.com/make-go-great/netrc-go v0.0.2
 	github.com/sourcegraph/conc v0.3.0
