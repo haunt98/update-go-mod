@@ -1,8 +1,6 @@
 module github.com/haunt98/update-go-mod
 
-go 1.22.0
-
-toolchain go1.23.6
+go 1.23
 
 require (
 	github.com/bytedance/sonic v1.12.8
