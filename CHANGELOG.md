@@ -1,5 +1,51 @@
 # CHANGELOG
 
+## v0.8.1 (2025-02-25)
+
+### Others
+
+- build: bump go.mod go 1.24 (2025-02-25)
+
+- chore: modernize (2025-02-25)
+
+- chore(deps): bump golang.org/x/oauth2 from 0.26.0 to 0.27.0 (#79) (2025-02-25)
+
+- chore(deps): bump github.com/bytedance/sonic from 1.12.8 to 1.12.9 (#78) (2025-02-20)
+
+- chore(deps): bump github.com/google/go-github/v69 from 69.1.0 to 69.2.0 (#77) (2025-02-18)
+
+- chore(deps): bump github.com/google/go-github/v69 from 69.0.0 to 69.1.0 (#76) (2025-02-14)
+
+- build: bump go.mod (2025-02-05)
+
+- build: bump go-github v69 (2025-02-05)
+
+- chore(deps): bump golang.org/x/oauth2 from 0.25.0 to 0.26.0 (#75) (2025-02-05)
+
+- chore(deps): bump github.com/bytedance/sonic from 1.12.7 to 1.12.8 (#74) (2025-01-27)
+
+- chore(deps): bump github.com/bytedance/sonic from 1.12.6 to 1.12.7 (#73) (2025-01-08)
+
+- chore(deps): bump golang.org/x/oauth2 from 0.24.0 to 0.25.0 (#72) (2025-01-06)
+
+- chore: deprecated check-shadowing in govet linter (2025-01-05)
+
+- build: update go-github from v67 to v68 (2024-12-23)
+
+- chore(deps): bump github.com/spf13/cast from 1.7.0 to 1.7.1 (#71) (2024-12-19)
+
+- chore(deps): bump github.com/bytedance/sonic from 1.12.5 to 1.12.6 (#70) (2024-12-17)
+
+- build: update go-github from v65 to v67 (2024-11-28)
+
+- chore(deps): bump github.com/bytedance/sonic from 1.12.4 to 1.12.5 (#69) (2024-11-25)
+
+- chore(deps): bump golang.org/x/oauth2 from 0.23.0 to 0.24.0 (#68) (2024-11-09)
+
+- chore(deps): bump github.com/bytedance/sonic from 1.12.3 to 1.12.4 (#67) (2024-11-06)
+
+- chore(changelog): generate v0.8.0 (2024-11-01)
+
 ## v0.8.0 (2024-11-01)
 
 ### Added
