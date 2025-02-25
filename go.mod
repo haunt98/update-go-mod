@@ -1,7 +1,6 @@
 module github.com/haunt98/update-go-mod
 
 go 1.23
-
 require (
 	github.com/bytedance/sonic v1.12.9
 	github.com/google/go-github/v69 v69.2.0
@@ -10,7 +9,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/cast v1.7.1
 	github.com/urfave/cli/v2 v2.27.5
-	golang.org/x/oauth2 v0.26.0
+	golang.org/x/oauth2 v0.27.0
 )
 
 require (
