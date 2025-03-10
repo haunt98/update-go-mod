@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## v0.8.2 (2025-03-10)
+
+### Others
+
+- chore(changelog): generate v0.8.1 (2025-02-25)
+
+### Build
+
+- chore(deps): bump github.com/bytedance/sonic from 1.12.10 to 1.13.1 (#83) (2025-03-10)
+
+- chore(deps): bump golang.org/x/oauth2 from 0.27.0 to 0.28.0 (#82) (2025-03-06)
+
+- chore(deps): bump github.com/urfave/cli/v2 from 2.27.5 to 2.27.6 (#81) (2025-03-06)
+
+- chore(deps): bump github.com/bytedance/sonic from 1.12.9 to 1.12.10 (#80) (2025-03-03)
+
 ## v0.8.1 (2025-02-25)
 
 ### Others
