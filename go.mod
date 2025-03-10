@@ -3,7 +3,7 @@ module github.com/haunt98/update-go-mod
 go 1.24
 
 require (
-	github.com/bytedance/sonic v1.12.10
+	github.com/bytedance/sonic v1.13.1
 	github.com/google/go-github/v69 v69.2.0
 	github.com/make-go-great/color-go v0.5.0
 	github.com/make-go-great/netrc-go v0.0.2
@@ -14,7 +14,7 @@ require (
 )
 
 require (
-	github.com/bytedance/sonic/loader v0.2.2 // indirect
+	github.com/bytedance/sonic/loader v0.2.4 // indirect
 	github.com/cloudwego/base64x v0.1.5 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.5 // indirect
 	github.com/fatih/color v1.15.0 // indirect
