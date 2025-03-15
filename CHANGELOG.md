@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.8.3 (2025-03-15)
+
+### Added
+
+- feat: remove go get -d (2025-03-15)
+
+### Others
+
+- chore(changelog): generate v0.8.2 (2025-03-10)
+
 ## v0.8.2 (2025-03-10)
 
 ### Others
