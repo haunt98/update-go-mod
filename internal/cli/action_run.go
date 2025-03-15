@@ -221,7 +221,7 @@ func (a *action) runUpgradeModule(
 		return successUpgradedModules, nil
 	}
 
-	goGetArgs := []string{"get", "-d", modulePath + "@" + module.Update.Version}
+	goGetArgs := []string{"get", modulePath + "@" + module.Update.Version}
 	goOutput, err = exec.CommandContext(c.Context, "go", goGetArgs...).CombinedOutput()
 	if err != nil {
 		return successUpgradedModules, fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goGetArgs, " "), err)
