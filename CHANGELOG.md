@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## v0.8.4 (2025-03-25)
+
+### Others
+
+- chore: lint with modernize (2025-03-25)
+
+- chore: use golangci-lint v2 (2025-03-25)
+
+- chore(changelog): generate v0.8.3 (2025-03-15)
+
+### Build
+
+- chore(deps): bump golangci/golangci-lint-action from 6 to 7 (#85) (2025-03-25)
+
+- chore(deps): bump github.com/bytedance/sonic from 1.13.1 to 1.13.2 (#84) (2025-03-24)
+
+- build: bump go-github v70 (2025-03-18)
+
 ## v0.8.3 (2025-03-15)
 
 ### Added
