@@ -58,8 +58,8 @@ func (a *action) Run(c *cli.Context) error {
 
 	// Read deps file line by line to upgrade
 	successUpgradedModules := make([]*Module, 0, defaultCountModule)
-	modulePaths := strings.Split(depsStr, "\n")
-	for _, modulePath := range modulePaths {
+	modulePaths := strings.SplitSeq(depsStr, "\n")
+	for modulePath := range modulePaths {
 		successUpgradedModules, err = a.runUpgradeModule(
 			c,
 			mapImportedModules,
