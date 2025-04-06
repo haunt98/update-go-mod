@@ -13,7 +13,7 @@ import (
 	"github.com/google/go-github/v70/github"
 	"github.com/sourcegraph/conc/pool"
 	"github.com/spf13/cast"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 const maxPoolGoroutine = 8
@@ -26,7 +26,7 @@ type GitHubRepoData struct {
 	StarCount    int
 }
 
-func (a *action) Overlook(c *cli.Context) error {
+func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 	// Optional
 	if a.ghClient == nil {
 		return nil
@@ -34,7 +34,7 @@ func (a *action) Overlook(c *cli.Context) error {
 
 	a.getFlags(c)
 
-	mapImportedModules, err := a.runGetImportedModules(c)
+	mapImportedModules, err := a.runGetImportedModules(ctx)
 	if err != nil {
 		return err
 	}

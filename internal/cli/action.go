@@ -1,10 +1,11 @@
 package cli
 
 import (
+	"context"
 	"log"
 
 	"github.com/google/go-github/v70/github"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 const (
@@ -22,11 +23,11 @@ type action struct {
 	}
 }
 
-func (a *action) RunHelp(c *cli.Context) error {
+func (a *action) RunHelp(ctx context.Context, c *cli.Command) error {
 	return cli.ShowAppHelp(c)
 }
 
-func (a *action) getFlags(c *cli.Context) {
+func (a *action) getFlags(c *cli.Command) {
 	a.flags.verbose = c.Bool(flagVerboseName)
 
 	a.flags.depsFile = c.String(flagDepsFileName)

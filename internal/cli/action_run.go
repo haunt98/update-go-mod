@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -11,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/bytedance/sonic"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/make-go-great/color-go"
 )
@@ -33,10 +34,10 @@ var (
 	ErrGoModExistToolchain  = errors.New("go mod exist toolchain")
 )
 
-func (a *action) Run(c *cli.Context) error {
+func (a *action) Run(ctx context.Context, c *cli.Command) error {
 	a.getFlags(c)
 
-	mapImportedModules, err := a.runGetImportedModules(c)
+	mapImportedModules, err := a.runGetImportedModules(ctx)
 	if err != nil {
 		return err
 	}
@@ -61,7 +62,7 @@ func (a *action) Run(c *cli.Context) error {
 	modulePaths := strings.SplitSeq(depsStr, "\n")
 	for modulePath := range modulePaths {
 		successUpgradedModules, err = a.runUpgradeModule(
-			c,
+			ctx,
 			mapImportedModules,
 			successUpgradedModules,
 			modulePath,
@@ -71,11 +72,11 @@ func (a *action) Run(c *cli.Context) error {
 		}
 	}
 
-	if err := a.runGoMod(c, existVendor); err != nil {
+	if err := a.runGoMod(ctx, existVendor); err != nil {
 		return err
 	}
 
-	if err := a.runGitCommit(c, successUpgradedModules, existVendor, useDepFile); err != nil {
+	if err := a.runGitCommit(ctx, successUpgradedModules, existVendor, useDepFile); err != nil {
 		return err
 	}
 
@@ -83,9 +84,9 @@ func (a *action) Run(c *cli.Context) error {
 }
 
 // Get all imported modules
-func (a *action) runGetImportedModules(c *cli.Context) (map[string]*Module, error) {
+func (a *action) runGetImportedModules(ctx context.Context) (map[string]*Module, error) {
 	goListAllArgs := []string{"list", "-m", "-json", "-mod=readonly", "all"}
-	goOutput, err := exec.CommandContext(c.Context, "go", goListAllArgs...).CombinedOutput()
+	goOutput, err := exec.CommandContext(ctx, "go", goListAllArgs...).CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("exec: failed to run go %s: %w", strings.Join(goListAllArgs, " "), err)
 	}
@@ -169,7 +170,7 @@ func (a *action) runReadDepsFile() (depsStr string, useDepFile bool, err error) 
 }
 
 func (a *action) runUpgradeModule(
-	c *cli.Context,
+	ctx context.Context,
 	mapImportedModules map[string]*Module,
 	successUpgradedModules []*Module,
 	modulePath string,
@@ -196,7 +197,7 @@ func (a *action) runUpgradeModule(
 
 	// Get module latest version
 	goListArgs := []string{"list", "-m", "-u", "-json", "-mod=readonly", modulePath}
-	goOutput, err := exec.CommandContext(c.Context, "go", goListArgs...).CombinedOutput()
+	goOutput, err := exec.CommandContext(ctx, "go", goListArgs...).CombinedOutput()
 	if err != nil {
 		return successUpgradedModules, fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goListArgs, " "), err)
 	}
@@ -222,7 +223,7 @@ func (a *action) runUpgradeModule(
 	}
 
 	goGetArgs := []string{"get", modulePath + "@" + module.Update.Version}
-	goOutput, err = exec.CommandContext(c.Context, "go", goGetArgs...).CombinedOutput()
+	goOutput, err = exec.CommandContext(ctx, "go", goGetArgs...).CombinedOutput()
 	if err != nil {
 		return successUpgradedModules, fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goGetArgs, " "), err)
 	}
@@ -235,20 +236,20 @@ func (a *action) runUpgradeModule(
 	return successUpgradedModules, nil
 }
 
-func (a *action) runGoMod(c *cli.Context, existVendor bool) error {
+func (a *action) runGoMod(ctx context.Context, existVendor bool) error {
 	if a.flags.dryRun {
 		return nil
 	}
 
 	// go mod edit -toolchain=none
 	goModArgs := []string{"mod", "edit", "-toolchain=none"}
-	if _, err := exec.CommandContext(c.Context, "go", goModArgs...).CombinedOutput(); err != nil {
+	if _, err := exec.CommandContext(ctx, "go", goModArgs...).CombinedOutput(); err != nil {
 		return fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
 	}
 
 	// go mod tidy
 	goModArgs = []string{"mod", "tidy"}
-	goOutput, err := exec.CommandContext(c.Context, "go", goModArgs...).CombinedOutput()
+	goOutput, err := exec.CommandContext(ctx, "go", goModArgs...).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
 	}
@@ -257,7 +258,7 @@ func (a *action) runGoMod(c *cli.Context, existVendor bool) error {
 	if existVendor {
 		// go mod vendor
 		goModArgs = []string{"mod", "vendor"}
-		goOutput, err = exec.CommandContext(c.Context, "go", goModArgs...).CombinedOutput()
+		goOutput, err = exec.CommandContext(ctx, "go", goModArgs...).CombinedOutput()
 		if err != nil {
 			return fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
 		}
@@ -292,7 +293,7 @@ func (a *action) runReadGoMod() (*GoMod, error) {
 	return goMod, nil
 }
 
-func (a *action) runGitCommit(c *cli.Context, successUpgradedModules []*Module, existVendor, useDepFile bool) error {
+func (a *action) runGitCommit(ctx context.Context, successUpgradedModules []*Module, existVendor, useDepFile bool) error {
 	if a.flags.dryRun {
 		return nil
 	}
@@ -320,7 +321,7 @@ func (a *action) runGitCommit(c *cli.Context, successUpgradedModules []*Module, 
 		gitAddArgs = append(gitAddArgs, a.flags.depsFile)
 	}
 
-	gitOutput, err := exec.CommandContext(c.Context, "git", gitAddArgs...).CombinedOutput()
+	gitOutput, err := exec.CommandContext(ctx, "git", gitAddArgs...).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("exec: failed to run git %+v: %w", strings.Join(gitAddArgs, " "), err)
 	}
@@ -332,7 +333,7 @@ func (a *action) runGitCommit(c *cli.Context, successUpgradedModules []*Module, 
 		gitCommitMessage += fmt.Sprintf("\n%s: %s -> %s", module.Path, module.Version, module.Update.Version)
 	}
 	gitCommitArgs := []string{"commit", "-m", gitCommitMessage}
-	gitOutput, err = exec.CommandContext(c.Context, "git", gitCommitArgs...).CombinedOutput()
+	gitOutput, err = exec.CommandContext(ctx, "git", gitCommitArgs...).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("exec: failed to run git %+v: %w", strings.Join(gitCommitArgs, " "), err)
 	}

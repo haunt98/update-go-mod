@@ -21,7 +21,7 @@ func main() {
 	app := cli.NewApp(
 		initGitHubClient(),
 	)
-	app.Run()
+	app.Run(context.Background())
 }
 
 func initGitHubClient() *github.Client {

@@ -1,10 +1,11 @@
 package cli
 
 import (
+	"context"
 	"os"
 
 	"github.com/google/go-github/v70/github"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	"github.com/make-go-great/color-go"
 )
@@ -38,7 +39,7 @@ const (
 var aliasFlagVerbose = []string{"v"}
 
 type App struct {
-	cliApp *cli.App
+	cliApp *cli.Command
 }
 
 func NewApp(
@@ -48,7 +49,7 @@ func NewApp(
 		ghClient: ghClient,
 	}
 
-	cliApp := &cli.App{
+	cliApp := &cli.Command{
 		Name:  name,
 		Usage: usage,
 		Commands: []*cli.Command{
@@ -101,8 +102,8 @@ func NewApp(
 	}
 }
 
-func (a *App) Run() {
-	if err := a.cliApp.Run(os.Args); err != nil {
+func (a *App) Run(ctx context.Context) {
+	if err := a.cliApp.Run(ctx, os.Args); err != nil {
 		color.PrintAppError(name, err.Error())
 	}
 }
