@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.9.0 (2025-04-06)
+
+### Others
+
+- chore(changelog): generate v0.8.4 (2025-03-25)
+
+### Build
+
+- build: bump urfave/cli v3 (2025-04-06)
+
 ## v0.8.4 (2025-03-25)
 
 ### Others
