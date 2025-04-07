@@ -10,7 +10,7 @@ require (
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/cast v1.7.1
 	github.com/urfave/cli/v3 v3.1.1
-	golang.org/x/oauth2 v0.28.0
+	golang.org/x/oauth2 v0.29.0
 )
 
 require (
