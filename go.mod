@@ -8,7 +8,7 @@ require (
 	github.com/make-go-great/color-go v0.5.0
 	github.com/make-go-great/netrc-go v0.0.2
 	github.com/sourcegraph/conc v0.3.0
-	github.com/spf13/cast v1.7.1
+	github.com/spf13/cast v1.8.0
 	github.com/urfave/cli/v3 v3.3.2
 	golang.org/x/oauth2 v0.29.0
 )
