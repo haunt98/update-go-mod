@@ -10,7 +10,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/google/go-github/v72/github"
+	"github.com/google/go-github/v73/github"
 	"github.com/sourcegraph/conc/pool"
 	"github.com/spf13/cast"
 	"github.com/urfave/cli/v3"
@@ -51,7 +51,6 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 	var mMutex sync.Mutex
 	var listMutex sync.Mutex
 	for module := range mapImportedModules {
-		module := module
 		p.Go(func() {
 			ctx := context.Background()
 
