@@ -1,5 +1,47 @@
 # CHANGELOG
 
+## v0.10.0 (2025-07-23)
+
+### Others
+
+- chore(changelog): generate v0.9.0 (2025-04-06)
+
+### Build
+
+- build: bump go deps and fix lint (2025-07-23)
+
+- build: bump go deps (2025-06-27)
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.3.5 to 3.3.8 (#98) (2025-06-16)
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.3.3 to 3.3.5 (#97) (2025-06-13)
+
+- chore(deps): bump github.com/bytedance/sonic from 1.13.2 to 1.13.3 (#96) (2025-06-04)
+
+- chore(deps): bump github.com/spf13/cast from 1.9.1 to 1.9.2 (#95) (2025-06-03)
+
+- chore(deps): bump github.com/spf13/cast from 1.8.0 to 1.9.1 (#94) (2025-06-02)
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.3.2 to 3.3.3 (#93) (2025-05-12)
+
+- build: bump google/go-github v72 (2025-05-09)
+
+- chore(deps): bump golang.org/x/oauth2 from 0.29.0 to 0.30.0 (#92) (2025-05-06)
+
+- chore(deps): bump golangci/golangci-lint-action from 7 to 8 (#91) (2025-05-05)
+
+- chore(deps): bump github.com/spf13/cast from 1.7.1 to 1.8.0 (#90) (2025-05-05)
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.3.1 to 3.3.2 (#89) (2025-04-29)
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.2.0 to 3.3.1 (#88) (2025-04-28)
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.1.1 to 3.2.0 (#87) (2025-04-21)
+
+- build: bump go-github v71 (2025-04-08)
+
+- chore(deps): bump golang.org/x/oauth2 from 0.28.0 to 0.29.0 (#86) (2025-04-07)
+
 ## v0.9.0 (2025-04-06)
 
 ### Others
