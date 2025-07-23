@@ -265,7 +265,7 @@ func (a *action) runGoMod(ctx context.Context, existVendor bool) error {
 		a.log("Go output: %s\n", string(goOutput))
 	}
 
-	goMod, err := a.runReadGoMod()
+	goMod, err := a.runReadGoMod(ctx)
 	if err != nil {
 		return err
 	}
@@ -277,9 +277,9 @@ func (a *action) runGoMod(ctx context.Context, existVendor bool) error {
 	return nil
 }
 
-func (a *action) runReadGoMod() (*GoMod, error) {
+func (a *action) runReadGoMod(ctx context.Context) (*GoMod, error) {
 	goModArgs := []string{"mod", "edit", "-json"}
-	goOutput, err := exec.Command("go", goModArgs...).CombinedOutput()
+	goOutput, err := exec.CommandContext(ctx, "go", goModArgs...).CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
 	}
