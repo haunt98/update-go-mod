@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## v0.11.0 (2025-08-13)
+
+### Others
+
+- chore(changelog): generate v0.10.0 (2025-07-23)
+
+### Build
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.3.8 to 3.4.1 (#102) (2025-08-13)
+
+- chore(deps): bump actions/checkout from 4 to 5 (#101) (2025-08-13)
+
+- chore(deps): bump github.com/bytedance/sonic from 1.13.3 to 1.14.0 (#99) (2025-07-24)
+
 ## v0.10.0 (2025-07-23)
 
 ### Others
