@@ -9,7 +9,7 @@ require (
 	github.com/make-go-great/netrc-go v0.0.2
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/cast v1.9.2
-	github.com/urfave/cli/v3 v3.3.8
+	github.com/urfave/cli/v3 v3.4.1
 	golang.org/x/oauth2 v0.30.0
 )
 
