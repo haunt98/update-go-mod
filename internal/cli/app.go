@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/google/go-github/v74/github"
+	"github.com/google/go-github/v75/github"
 	"github.com/urfave/cli/v3"
 
 	"github.com/make-go-great/color-go"
