@@ -10,7 +10,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/google/go-github/v79/github"
+	"github.com/google/go-github/v80/github"
 	"github.com/sourcegraph/conc/pool"
 	"github.com/spf13/cast"
 	"github.com/urfave/cli/v3"
