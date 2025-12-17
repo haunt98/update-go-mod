@@ -1,5 +1,51 @@
 # CHANGELOG
 
+## v0.12.0 (2025-12-18)
+
+### Others
+
+- chore(changelog): generate v0.11.0 (2025-08-13)
+
+### Build
+
+- chore(deps): bump golang.org/x/oauth2 from 0.33.0 to 0.34.0 (#115) (2025-12-09)
+
+- build: bump go deps (2025-12-05)
+
+- chore(deps): bump actions/checkout from 5 to 6 (#114) (2025-11-21)
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.6.0 to 3.6.1 (#113) (2025-11-18)
+
+- build: bump go deps (2025-11-14)
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.5.0 to 3.6.0 (#111) (2025-11-10)
+
+- chore(deps): bump golang.org/x/oauth2 from 0.32.0 to 0.33.0 (#110) (2025-11-10)
+
+- chore(deps): bump golangci/golangci-lint-action from 8 to 9 (#112) (2025-11-10)
+
+- build: bump deps (2025-11-08)
+
+- build: bump go deps (2025-11-04)
+
+- chore(deps): bump github.com/bytedance/sonic from 1.14.1 to 1.14.2 (#109) (2025-10-29)
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.4.1 to 3.5.0 (#108) (2025-10-22)
+
+- build: bump go deps (2025-10-15)
+
+- chore(deps): bump golang.org/x/oauth2 from 0.31.0 to 0.32.0 (#107) (2025-10-09)
+
+- build: bump go deps (2025-09-23)
+
+- chore(deps): bump github.com/spf13/cast from 1.9.2 to 1.10.0 (#106) (2025-09-09)
+
+- chore(deps): bump golang.org/x/oauth2 from 0.30.0 to 0.31.0 (#105) (2025-09-08)
+
+- chore(deps): bump actions/setup-go from 5 to 6 (#104) (2025-09-05)
+
+- chore(deps): bump github.com/bytedance/sonic from 1.14.0 to 1.14.1 (#103) (2025-09-04)
+
 ## v0.11.0 (2025-08-13)
 
 ### Others
