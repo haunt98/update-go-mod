@@ -6,7 +6,7 @@ require (
 	github.com/bytedance/sonic v1.14.2
 	github.com/google/go-github/v80 v80.0.0
 	github.com/make-go-great/color-go v0.6.0
-	github.com/make-go-great/netrc-go v0.0.2
+	github.com/make-go-great/netrc-go v0.0.3
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/cast v1.10.0
 	github.com/urfave/cli/v3 v3.6.1
