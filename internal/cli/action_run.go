@@ -328,11 +328,12 @@ func (a *action) runGitCommit(ctx context.Context, successUpgradedModules []*Mod
 	a.log("Git output: %s\n", string(gitOutput))
 
 	// git commit
-	gitCommitMessage := "build: upgrade modules\n"
+	var gitCommitMessage strings.Builder
+	gitCommitMessage.WriteString("build: upgrade modules\n")
 	for _, module := range successUpgradedModules {
-		gitCommitMessage += fmt.Sprintf("\n%s: %s -> %s", module.Path, module.Version, module.Update.Version)
+		gitCommitMessage.WriteString(fmt.Sprintf("\n%s: %s -> %s", module.Path, module.Version, module.Update.Version))
 	}
-	gitCommitArgs := []string{"commit", "-m", gitCommitMessage}
+	gitCommitArgs := []string{"commit", "-m", gitCommitMessage.String()}
 	gitOutput, err = exec.CommandContext(ctx, "git", gitCommitArgs...).CombinedOutput()
 	if err != nil {
 		return fmt.Errorf("exec: failed to run git %+v: %w", strings.Join(gitCommitArgs, " "), err)
