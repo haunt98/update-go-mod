@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/bytedance/sonic v1.15.0
-	github.com/google/go-github/v81 v81.0.0
+	github.com/google/go-github/v82 v82.0.0
 	github.com/make-go-great/color-go v0.6.0
 	github.com/make-go-great/netrc-go v0.0.3
 	github.com/sourcegraph/conc v0.3.0
@@ -18,7 +18,7 @@ require (
 	github.com/bytedance/sonic/loader v0.5.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
 	github.com/fatih/color v1.18.0 // indirect
-	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/google/go-querystring v1.2.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
