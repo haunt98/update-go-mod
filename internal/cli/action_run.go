@@ -331,7 +331,7 @@ func (a *action) runGitCommit(ctx context.Context, successUpgradedModules []*Mod
 	var gitCommitMessage strings.Builder
 	gitCommitMessage.WriteString("build: upgrade modules\n")
 	for _, module := range successUpgradedModules {
-		gitCommitMessage.WriteString(fmt.Sprintf("\n%s: %s -> %s", module.Path, module.Version, module.Update.Version))
+		fmt.Fprintf(&gitCommitMessage, "\n%s: %s -> %s", module.Path, module.Version, module.Update.Version)
 	}
 	gitCommitArgs := []string{"commit", "-m", gitCommitMessage.String()}
 	gitOutput, err = exec.CommandContext(ctx, "git", gitCommitArgs...).CombinedOutput()
