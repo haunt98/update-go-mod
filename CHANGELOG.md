@@ -1,5 +1,33 @@
 # CHANGELOG
 
+## v0.12.1 (2026-02-28)
+
+### Others
+
+- chore: ubuntu-latest -> ubuntu-slim (2025-12-20)
+
+- chore(changelog): generate v0.12.0 (2025-12-18)
+
+### Build
+
+- build: bump deps (2026-02-28)
+
+- build: bump go deps (2026-02-21)
+
+- chore(deps): bump golang.org/x/oauth2 from 0.34.0 to 0.35.0 (#120) (2026-02-09)
+
+- build: bump go deps (2026-01-28)
+
+- chore(deps): bump github.com/bytedance/sonic from 1.14.2 to 1.15.0 (#119) (2026-01-23)
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.6.1 to 3.6.2 (#118) (2026-01-19)
+
+- build: bump go deps (2026-01-06)
+
+- chore(deps): bump github.com/make-go-great/netrc-go from 0.0.2 to 0.0.3 (#116) (2025-12-18)
+
+- chore(deps): bump github.com/make-go-great/color-go from 0.5.0 to 0.6.0 (#117) (2025-12-18)
+
 ## v0.12.0 (2025-12-18)
 
 ### Others
