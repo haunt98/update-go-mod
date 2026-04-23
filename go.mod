@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/bytedance/sonic v1.15.0
-	github.com/google/go-github/v84 v84.0.0
+	github.com/google/go-github/v85 v85.0.0
 	github.com/make-go-great/color-go v0.7.0
 	github.com/make-go-great/netrc-go v0.0.3
 	github.com/sourcegraph/conc v0.3.0
