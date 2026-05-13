@@ -1,5 +1,35 @@
 # CHANGELOG
 
+## v0.12.2 (2026-05-13)
+
+### Others
+
+- chore: update lint (2026-05-10)
+
+- chore (2026-03-21)
+
+- lint (2026-03-10)
+
+- chore(changelog): generate v0.12.1 (2026-02-28)
+
+### Build
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.8.0 to 3.9.0 (#126) (2026-05-13)
+
+- build: bump go deps (2026-05-08)
+
+- chore(deps): bump github.com/bytedance/sonic from 1.15.0 to 1.15.1 (#125) (2026-04-28)
+
+- build: bump go (2026-04-23)
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.7.0 to 3.8.0 (#124) (2026-03-26)
+
+- chore(deps): bump github.com/make-go-great/color-go from 0.6.0 to 0.7.0 (#123) (2026-03-23)
+
+- chore(deps): bump golang.org/x/oauth2 from 0.35.0 to 0.36.0 (#122) (2026-03-09)
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.6.2 to 3.7.0 (#121) (2026-03-02)
+
 ## v0.12.1 (2026-02-28)
 
 ### Others
