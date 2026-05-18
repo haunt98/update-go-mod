@@ -27,7 +27,7 @@ func main() {
 func initGitHubClient() *github.Client {
 	netrcData, err := netrc.ParseFile(netrcPath)
 	if err != nil {
-		log.Panicf("netrc: failed to parse file: %v", err)
+		log.Fatalf("netrc: failed to parse file: %v\n", err)
 	}
 
 	var ghAccessToken string
@@ -40,12 +40,12 @@ func initGitHubClient() *github.Client {
 
 	ghAccessToken = strings.TrimSpace(ghAccessToken)
 	if ghAccessToken == "" {
-		log.Panicf("Empty GitHub access token")
+		log.Fatalln("Empty GitHub access token")
 	}
 
 	ghClient, err := github.NewClient(github.WithAuthToken(ghAccessToken))
 	if err != nil {
-		log.Panicf("github: failed to create client: %v", err)
+		log.Fatalf("github: failed to create client: %v\n", err)
 	}
 
 	return ghClient
