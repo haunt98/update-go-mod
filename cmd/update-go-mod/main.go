@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
+	"log"
 	"strings"
 
-	"github.com/google/go-github/v86/github"
-	"golang.org/x/oauth2"
+	"github.com/google/go-github/v87/github"
 
 	"github.com/make-go-great/netrc-go"
 
@@ -27,7 +27,7 @@ func main() {
 func initGitHubClient() *github.Client {
 	netrcData, err := netrc.ParseFile(netrcPath)
 	if err != nil {
-		return nil
+		log.Panicf("netrc: failed to parse file: %v", err)
 	}
 
 	var ghAccessToken string
@@ -38,17 +38,15 @@ func initGitHubClient() *github.Client {
 		}
 	}
 
+	ghAccessToken = strings.TrimSpace(ghAccessToken)
 	if ghAccessToken == "" {
-		return nil
+		log.Panicf("Empty GitHub access token")
 	}
 
-	ghTokenSrc := oauth2.StaticTokenSource(
-		&oauth2.Token{
-			AccessToken: strings.TrimSpace(ghAccessToken),
-		},
-	)
-	ghHTTPClient := oauth2.NewClient(context.Background(), ghTokenSrc)
-	ghClient := github.NewClient(ghHTTPClient)
+	ghClient, err := github.NewClient(github.WithAuthToken(ghAccessToken))
+	if err != nil {
+		log.Panicf("github: failed to create client: %v", err)
+	}
 
 	return ghClient
 }

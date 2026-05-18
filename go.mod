@@ -4,13 +4,12 @@ go 1.25.0
 
 require (
 	github.com/bytedance/sonic v1.15.1
-	github.com/google/go-github/v86 v86.0.0
+	github.com/google/go-github/v87 v87.0.0
 	github.com/make-go-great/color-go v0.7.0
 	github.com/make-go-great/netrc-go v0.0.3
 	github.com/sourcegraph/conc v0.3.0
 	github.com/spf13/cast v1.10.0
 	github.com/urfave/cli/v3 v3.9.0
-	golang.org/x/oauth2 v0.36.0
 )
 
 require (
