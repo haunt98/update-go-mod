@@ -131,13 +131,21 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 
 	// Print
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
+
+	if a.flags.latest {
+		fmt.Fprintln(w, "Module\tCurrent Version\tLatest Version\t⭐\tLast Commit")
+	} else {
+		fmt.Fprintln(w, "Module\tCurrent Version\tStars\tLast Commit")
+	}
+
 	for _, r := range listGHRepoData {
 		if a.flags.latest {
-			fmt.Fprintf(w, "Module %s\t%s\t→\t%s\t%s\t⭐\tLast commit %s\n", r.Name, r.CurrentVersion, r.LatestVersion, roundK(r.StarCount), r.LastCommitAt.Format(time.DateOnly))
+			fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", r.Name, r.CurrentVersion, r.LatestVersion, roundK(r.StarCount), r.LastCommitAt.Format(time.DateOnly))
 			continue
 		}
-		fmt.Fprintf(w, "Module %s\t%s\t%s\t⭐\tLast commit %s\n", r.Name, r.CurrentVersion, roundK(r.StarCount), r.LastCommitAt.Format(time.DateOnly))
+		fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", r.Name, r.CurrentVersion, roundK(r.StarCount), r.LastCommitAt.Format(time.DateOnly))
 	}
+
 	w.Flush()
 
 	return nil
