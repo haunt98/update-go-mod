@@ -133,9 +133,9 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 
 	if a.flags.latest {
-		fmt.Fprintln(w, "Module\tCurrent Version\tLatest Version\t⭐\tLast Commit")
+		fmt.Fprintln(w, "Module\tCurrent\tLatest\t⭐\tLast Commit")
 	} else {
-		fmt.Fprintln(w, "Module\tCurrent Version\tStars\tLast Commit")
+		fmt.Fprintln(w, "Module\tCurrent\t⭐\tLast Commit")
 	}
 
 	for _, r := range listGHRepoData {
