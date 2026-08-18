@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.13.2 (2026-08-18)
+
+### Added
+
+- feat: only add -u if exist --latest (2026-08-18)
+
+### Others
+
+- chore(changelog): generate v0.13.1 (2026-08-18)
+
 ## v0.13.1 (2026-08-18)
 
 ### Added
