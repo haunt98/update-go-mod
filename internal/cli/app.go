@@ -26,14 +26,8 @@ const (
 	flagDepsFileName  = "deps-file"
 	flagDepsFileUsage = "file which show what deps need to upgrade"
 
-	flagDepsURLName  = "deps-url"
-	flagDepsURLUsage = "url which show what deps need to upgrade"
-
 	flagDryRun     = "dry-run"
 	flagDryRunName = "demo what would be done"
-
-	flagForceIndirectName  = "force-indirect"
-	flagForceIndirectUsage = "force update indirect module"
 
 	flagLatestName  = "latest"
 	flagLatestUsage = "show latest version"
@@ -69,17 +63,9 @@ func NewApp(
 						Name:  flagDepsFileName,
 						Usage: flagDepsFileUsage,
 					},
-					&cli.StringFlag{
-						Name:  flagDepsURLName,
-						Usage: flagDepsURLUsage,
-					},
 					&cli.BoolFlag{
 						Name:  flagDryRun,
 						Usage: flagDryRunName,
-					},
-					&cli.BoolFlag{
-						Name:  flagForceIndirectName,
-						Usage: flagForceIndirectUsage,
 					},
 				},
 				Action: a.Run,

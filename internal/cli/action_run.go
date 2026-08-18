@@ -4,9 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
-	"net/url"
 	"os"
 	"os/exec"
 	"strings"
@@ -30,7 +27,6 @@ const (
 
 var (
 	ErrInvalidModuleVersion = errors.New("invalid module version")
-	ErrFailedStatusCode     = errors.New("failed status code")
 	ErrGoModExistToolchain  = errors.New("go mod exist toolchain")
 )
 
@@ -111,7 +107,7 @@ func (a *action) runGetImportedModules(ctx context.Context) (map[string]*Module,
 		}
 
 		// Ignore indirect module
-		if importedModule.Indirect && !a.flags.forceIndirect {
+		if importedModule.Indirect {
 			continue
 		}
 
@@ -129,33 +125,7 @@ func (a *action) runGetImportedModules(ctx context.Context) (map[string]*Module,
 }
 
 func (a *action) runReadDepsFile() (depsStr string, useDepFile bool, err error) {
-	// Try to read from url first
-	if a.flags.depsURL != "" {
-		depsURL, err := url.Parse(a.flags.depsURL)
-		if err != nil {
-			return "", false, fmt.Errorf("url: failed to parse %s: %w", a.flags.depsURL, err)
-		}
-
-		// nolint:noctx
-		httpRsp, err := http.Get(depsURL.String())
-		if err != nil {
-			return "", false, fmt.Errorf("http: failed to get %s: %w", depsURL.String(), err)
-		}
-		defer httpRsp.Body.Close()
-
-		if httpRsp.StatusCode != http.StatusOK {
-			return "", false, fmt.Errorf("http: status code not ok %d: %w", httpRsp.StatusCode, ErrFailedStatusCode)
-		}
-
-		depsBytes, err := io.ReadAll(httpRsp.Body)
-		if err != nil {
-			return "", false, fmt.Errorf("io: failed to read all: %w", err)
-		}
-
-		return strings.TrimSpace(string(depsBytes)), false, nil
-	}
-
-	// If empty url, try to read from file
+	// Read from file
 	depsBytes, err := os.ReadFile(a.flags.depsFile)
 	if err != nil {
 		if os.IsNotExist(err) {

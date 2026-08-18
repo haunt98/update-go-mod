@@ -15,12 +15,10 @@ const (
 type action struct {
 	ghClient *github.Client
 	flags    struct {
-		depsFile      string
-		depsURL       string
-		verbose       bool
-		dryRun        bool
-		forceIndirect bool
-		latest        bool
+		depsFile string
+		verbose  bool
+		dryRun   bool
+		latest   bool
 	}
 }
 
@@ -37,9 +35,7 @@ func (a *action) getFlags(c *cli.Command) {
 		a.flags.depsFile = defaultDepsFile
 	}
 
-	a.flags.depsURL = c.String(flagDepsURLName)
 	a.flags.dryRun = c.Bool(flagDryRun)
-	a.flags.forceIndirect = c.Bool(flagForceIndirectName)
 	a.flags.latest = c.Bool(flagLatestName)
 
 	a.log("Flags %+v\n", a.flags)

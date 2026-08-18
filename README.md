@@ -15,15 +15,11 @@ go install github.com/haunt98/update-go-mod/cmd/update-go-mod@latest
 
 ## Usage
 
-Create local file `.deps` ([example](.deps)) or use url depends on your use
-case:
+Create local file `.deps`:
 
 ```sh
 # Default read from .deps
 update-go-mod
-
-# Read from URL
-update-go-mod --deps-url "https://example.txt"
 
 # Don't do anything
 update-go-mod --dry-run
