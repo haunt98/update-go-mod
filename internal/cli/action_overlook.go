@@ -21,9 +21,11 @@ const maxPoolGoroutine = 8
 var reGitHub = regexp.MustCompile(`github\.com/([^/]*)/([^/]*)`)
 
 type GitHubRepoData struct {
-	LastCommitAt time.Time
-	Name         string
-	StarCount    int
+	LastCommitAt   time.Time
+	CurrentVersion string
+	LatestVersion  string
+	Name           string
+	StarCount      int
 }
 
 func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
@@ -50,15 +52,15 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 	p := pool.New().WithMaxGoroutines(maxPoolGoroutine)
 	var mMutex sync.Mutex
 	var listMutex sync.Mutex
-	for module := range mapImportedModules {
+	for modulePath, module := range mapImportedModules {
 		p.Go(func() {
 			ctx := context.Background()
 
-			if !reGitHub.MatchString(module) {
+			if !reGitHub.MatchString(modulePath) {
 				return
 			}
 
-			parts := reGitHub.FindStringSubmatch(module)
+			parts := reGitHub.FindStringSubmatch(modulePath)
 			if len(parts) != 3 {
 				return
 			}
@@ -104,11 +106,18 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 				}
 			}
 
+			latestVersion := ""
+			if module.Update != nil {
+				latestVersion = module.Update.Version
+			}
+
 			listMutex.Lock()
 			listGHRepoData = append(listGHRepoData, GitHubRepoData{
-				LastCommitAt: lastCommitAt,
-				Name:         name,
-				StarCount:    starCount,
+				CurrentVersion: module.Version,
+				LatestVersion:  latestVersion,
+				Name:           name,
+				LastCommitAt:   lastCommitAt,
+				StarCount:      starCount,
 			})
 			listMutex.Unlock()
 		})
@@ -123,7 +132,11 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 	// Print
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	for _, r := range listGHRepoData {
-		fmt.Fprintf(w, "Module %s\t%s\t⭐\tLast commit %s\n", r.Name, roundK(r.StarCount), r.LastCommitAt.Format(time.DateOnly))
+		if a.flags.latest {
+			fmt.Fprintf(w, "Module %s\t%s\t→\t%s\t%s\t⭐\tLast commit %s\n", r.Name, r.CurrentVersion, r.LatestVersion, roundK(r.StarCount), r.LastCommitAt.Format(time.DateOnly))
+			continue
+		}
+		fmt.Fprintf(w, "Module %s\t%s\t%s\t⭐\tLast commit %s\n", r.Name, r.CurrentVersion, roundK(r.StarCount), r.LastCommitAt.Format(time.DateOnly))
 	}
 	w.Flush()
 

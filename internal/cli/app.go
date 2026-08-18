@@ -34,6 +34,9 @@ const (
 
 	flagForceIndirectName  = "force-indirect"
 	flagForceIndirectUsage = "force update indirect module"
+
+	flagLatestName  = "latest"
+	flagLatestUsage = "show latest version"
 )
 
 var aliasFlagVerbose = []string{"v"}
@@ -89,6 +92,10 @@ func NewApp(
 						Name:    flagVerboseName,
 						Aliases: aliasFlagVerbose,
 						Usage:   flagVerboseUsage,
+					},
+					&cli.BoolFlag{
+						Name:  flagLatestName,
+						Usage: flagLatestUsage,
 					},
 				},
 				Action: a.Overlook,

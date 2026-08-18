@@ -85,7 +85,7 @@ func (a *action) Run(ctx context.Context, c *cli.Command) error {
 
 // Get all imported modules
 func (a *action) runGetImportedModules(ctx context.Context) (map[string]*Module, error) {
-	goListAllArgs := []string{"list", "-m", "-json", "-mod=readonly", "all"}
+	goListAllArgs := []string{"list", "-m", "-u", "-json", "-mod=readonly", "all"}
 	goOutput, err := exec.CommandContext(ctx, "go", goListAllArgs...).CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("exec: failed to run go %s: %w", strings.Join(goListAllArgs, " "), err)

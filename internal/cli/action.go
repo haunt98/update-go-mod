@@ -20,6 +20,7 @@ type action struct {
 		verbose       bool
 		dryRun        bool
 		forceIndirect bool
+		latest        bool
 	}
 }
 
@@ -39,6 +40,7 @@ func (a *action) getFlags(c *cli.Command) {
 	a.flags.depsURL = c.String(flagDepsURLName)
 	a.flags.dryRun = c.Bool(flagDryRun)
 	a.flags.forceIndirect = c.Bool(flagForceIndirectName)
+	a.flags.latest = c.Bool(flagLatestName)
 
 	a.log("Flags %+v\n", a.flags)
 }
