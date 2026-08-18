@@ -1,5 +1,45 @@
 # CHANGELOG
 
+## v0.13.0 (2026-08-18)
+
+### Added
+
+- feat: better overlook style (2026-08-18)
+
+- feat: add overlook --latest (2026-08-18)
+
+### Others
+
+- chore: rm unused (2026-08-18)
+
+- bump: update go deps (2026-08-05)
+
+- refactor: panic -> fatal (2026-05-18)
+
+- chore(changelog): generate v0.12.2 (2026-05-13)
+
+### Build
+
+- chore(deps): bump actions/setup-go from 6 to 7 (#133) (2026-07-17)
+
+- build: bump go deps (2026-07-07)
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.10.0 to 3.10.1 (#132) (2026-06-29)
+
+- chore(deps): bump actions/checkout from 6 to 7 (#131) (2026-06-19)
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.9.1 to 3.10.0 (#130) (2026-06-15)
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.9.0 to 3.9.1 (#129) (2026-06-11)
+
+- chore(deps): bump github.com/bytedance/sonic from 1.15.1 to 1.15.2 (#128) (2026-06-05)
+
+- chore(deps): bump gitleaks/gitleaks-action from 2 to 3 (#127) (2026-06-01)
+
+- build: bump go deps (2026-05-22)
+
+- build: bump go deps (2026-05-18)
+
 ## v0.12.2 (2026-05-13)
 
 ### Others
