@@ -1,13 +1,14 @@
 package cli
 
 import (
+	"cmp"
 	"context"
 	"errors"
 	"fmt"
 	"net/http"
 	"os"
 	"regexp"
-	"sort"
+	"slices"
 	"strings"
 	"sync"
 	"text/tabwriter"
@@ -92,8 +93,8 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 	p.Wait()
 
 	// Sort for consistency
-	sort.Slice(listGitRepoData, func(i, j int) bool {
-		return listGitRepoData[i].ModulePath < listGitRepoData[j].ModulePath
+	slices.SortFunc(listGitRepoData, func(a, b GitRepoData) int {
+		return cmp.Compare(a.ModulePath, b.ModulePath)
 	})
 
 	// Print
