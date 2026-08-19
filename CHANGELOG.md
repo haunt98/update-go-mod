@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## v0.14.0 (2026-08-19)
+
+### Added
+
+- feat: no need to get last commit (2026-08-19)
+
+- feat: overlook more beautiful (2026-08-19)
+
+- feat: support gitlab (2026-08-19)
+
+- feat: support show non GitHub repo (2026-08-19)
+
+### Others
+
+- refactor: sort.Slice -> slices.SortFunc (2026-08-19)
+
+- chore(changelog): generate v0.13.2 (2026-08-18)
+
 ## v0.13.2 (2026-08-18)
 
 ### Added
