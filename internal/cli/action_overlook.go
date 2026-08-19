@@ -100,17 +100,37 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 
 	if a.flags.latest {
-		fmt.Fprintln(w, "Module\tCurrent\tLatest\t⭐\tLast Commit")
+		fmt.Fprintln(w, "Module\tCurrent\tLatest\tStar\tLast Commit")
 	} else {
-		fmt.Fprintln(w, "Module\tCurrent\t⭐\tLast Commit")
+		fmt.Fprintln(w, "Module\tCurrent\tStar\tLast Commit")
 	}
 
 	for _, r := range listGitRepoData {
-		if a.flags.latest {
-			fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", r.ModulePath, r.CurrentVersion, r.LatestVersion, roundK(r.StarCount), r.LastCommitAt.Format(time.DateOnly))
-			continue
+		var lastCommitAtStr string
+		if !r.LastCommitAt.IsZero() {
+			lastCommitAtStr = r.LastCommitAt.Format(time.DateOnly)
 		}
-		fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", r.ModulePath, r.CurrentVersion, roundK(r.StarCount), r.LastCommitAt.Format(time.DateOnly))
+
+		if a.flags.latest {
+			fmt.Fprintf(
+				w,
+				"%s\t%s\t%s\t%s\t%s\n",
+				r.ModulePath,
+				r.CurrentVersion,
+				r.LatestVersion,
+				roundK(r.StarCount),
+				lastCommitAtStr,
+			)
+		} else {
+			fmt.Fprintf(
+				w,
+				"%s\t%s\t%s\t%s\n",
+				r.ModulePath,
+				r.CurrentVersion,
+				roundK(r.StarCount),
+				lastCommitAtStr,
+			)
+		}
 	}
 
 	w.Flush()
@@ -231,6 +251,10 @@ func (a *action) getGitLabRepoData(ctx context.Context, modulePath string) (last
 // Nearest thounsand
 // 1234 -> 1K
 func roundK(v int) string {
+	if v <= 0 {
+		return ""
+	}
+
 	if v < 1000 {
 		return cast.ToString(v)
 	}
