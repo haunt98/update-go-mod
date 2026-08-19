@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/go-github/v90/github"
 	"github.com/urfave/cli/v3"
+	gitlab "gitlab.com/gitlab-org/api/client-go"
 )
 
 const (
@@ -13,8 +14,9 @@ const (
 )
 
 type action struct {
-	ghClient *github.Client
-	flags    struct {
+	ghClient  *github.Client
+	glClients map[string]*gitlab.Client
+	flags     struct {
 		depsFile string
 		verbose  bool
 		dryRun   bool

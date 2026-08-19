@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/google/go-github/v90/github"
+	gitlab "gitlab.com/gitlab-org/api/client-go"
 
 	"github.com/make-go-great/netrc-go"
 
@@ -20,6 +21,7 @@ const (
 func main() {
 	app := cli.NewApp(
 		initGitHubClient(),
+		initGitLabClients(),
 	)
 	app.Run(context.Background())
 }
@@ -49,4 +51,30 @@ func initGitHubClient() *github.Client {
 	}
 
 	return ghClient
+}
+
+func initGitLabClients() map[string]*gitlab.Client {
+	netrcData, err := netrc.ParseFile(netrcPath)
+	if err != nil {
+		log.Fatalf("netrc: failed to parse file: %v\n", err)
+	}
+
+	glClients := make(map[string]*gitlab.Client)
+	for _, machine := range netrcData.Machines {
+		if !strings.Contains(machine.Name, "gitlab") {
+			continue
+		}
+
+		glClient, err := gitlab.NewClient(
+			strings.TrimSpace(machine.Password),
+			gitlab.WithBaseURL("https://"+machine.Name),
+		)
+		if err != nil {
+			log.Fatalf("gitlab: failed to create client for [%s]: %v\n", machine.Name, err)
+		}
+
+		glClients[machine.Name] = glClient
+	}
+
+	return glClients
 }

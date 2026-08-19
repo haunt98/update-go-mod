@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/go-github/v90/github"
 	"github.com/urfave/cli/v3"
+	gitlab "gitlab.com/gitlab-org/api/client-go"
 
 	"github.com/make-go-great/color-go"
 )
@@ -41,9 +42,11 @@ type App struct {
 
 func NewApp(
 	ghClient *github.Client,
+	glClients map[string]*gitlab.Client,
 ) *App {
 	a := &action{
-		ghClient: ghClient,
+		ghClient:  ghClient,
+		glClients: glClients,
 	}
 
 	cliApp := &cli.Command{

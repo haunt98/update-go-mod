@@ -2,10 +2,13 @@ package cli
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"regexp"
 	"sort"
+	"strings"
 	"sync"
 	"text/tabwriter"
 	"time"
@@ -14,11 +17,15 @@ import (
 	"github.com/sourcegraph/conc/pool"
 	"github.com/spf13/cast"
 	"github.com/urfave/cli/v3"
+	gitlab "gitlab.com/gitlab-org/api/client-go"
 )
 
 const maxPoolGoroutine = 8
 
-var reGitHub = regexp.MustCompile(`github\.com/([^/]*)/([^/]*)`)
+var (
+	reGitHub = regexp.MustCompile(`github\.com/([^/]*)/([^/]*)`)
+	reGitLab = regexp.MustCompile(`^(gitlab[^/]+)/(.+)`)
+)
 
 type GitRepoData struct {
 	LastCommitAt   time.Time
@@ -29,11 +36,6 @@ type GitRepoData struct {
 }
 
 func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
-	// Optional
-	if a.ghClient == nil {
-		return nil
-	}
-
 	a.getFlags(c)
 
 	mapImportedModules, err := a.runGetImportedModules(ctx)
@@ -46,12 +48,10 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 	}
 
 	listGitRepoData := make([]GitRepoData, 0, len(mapImportedModules))
-	// To avoid process again
-	mProccessedGitRepoData := make(map[string]struct{})
+	var listMutex sync.Mutex
 
 	p := pool.New().WithMaxGoroutines(maxPoolGoroutine)
-	var mMutex sync.Mutex
-	var listMutex sync.Mutex
+
 	for modulePath, module := range mapImportedModules {
 		p.Go(func() {
 			ctx := context.WithoutCancel(ctx)
@@ -61,75 +61,34 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 				latestVersion = module.Update.Version
 			}
 
-			if reGitHub.MatchString(modulePath) {
-				ghParts := reGitHub.FindStringSubmatch(modulePath)
-				if len(ghParts) != 3 {
-					return
-				}
-
-				ghRepoName := ghParts[0]
-				mMutex.Lock()
-				if _, ok := mProccessedGitRepoData[ghRepoName]; ok {
-					mMutex.Unlock()
-					return
-				}
-				mProccessedGitRepoData[ghRepoName] = struct{}{}
-				mMutex.Unlock()
-
-				ghOwner := ghParts[1]
-				ghRepo := ghParts[2]
-
-				ghRepoData, _, err := a.ghClient.Repositories.Get(ctx, ghOwner, ghRepo)
-				if err != nil {
-					a.log("GitHub failed to get repo %s/%s: %s\n", ghOwner, ghRepo, err)
-				}
-
-				var starCount int
-				if ghRepoData.StargazersCount != nil {
-					starCount = *ghRepoData.StargazersCount
-				}
-
-				ghCommits, _, err := a.ghClient.Repositories.ListCommits(ctx, ghOwner, ghRepo, &github.CommitsListOptions{
-					ListOptions: github.ListOptions{
-						Page:    1,
-						PerPage: 1,
-					},
-				})
-				if err != nil {
-					a.log("GitHub failed to get commits %s/%s: %s\n", ghOwner, ghRepo, err)
-				}
-
-				var lastCommitAt time.Time
-				if len(ghCommits) != 0 {
-					if ghCommits[0].Commit != nil &&
-						ghCommits[0].Commit.Author != nil &&
-						ghCommits[0].Commit.Author.Date != nil {
-						lastCommitAt = ghCommits[0].Commit.Author.Date.Time
-					}
-				}
-
-				listMutex.Lock()
-				listGitRepoData = append(listGitRepoData, GitRepoData{
-					LastCommitAt:   lastCommitAt,
-					ModulePath:     modulePath,
-					CurrentVersion: module.Version,
-					LatestVersion:  latestVersion,
-					StarCount:      starCount,
-				})
-				listMutex.Unlock()
-
-				return
-			}
-
-			listMutex.Lock()
-			listGitRepoData = append(listGitRepoData, GitRepoData{
+			gitRepoData := GitRepoData{
 				ModulePath:     modulePath,
 				CurrentVersion: module.Version,
 				LatestVersion:  latestVersion,
-			})
+			}
+
+			if a.ghClient != nil &&
+				reGitHub.MatchString(modulePath) {
+				lastCommitAt, starCount, ok := a.getGitHubRepoData(ctx, modulePath)
+				if ok {
+					gitRepoData.LastCommitAt = lastCommitAt
+					gitRepoData.StarCount = starCount
+				}
+			} else if a.glClients != nil &&
+				reGitLab.MatchString(modulePath) {
+				lastCommitAt, starCount, ok := a.getGitLabRepoData(ctx, modulePath)
+				if ok {
+					gitRepoData.LastCommitAt = lastCommitAt
+					gitRepoData.StarCount = starCount
+				}
+			}
+
+			listMutex.Lock()
+			listGitRepoData = append(listGitRepoData, gitRepoData)
 			listMutex.Unlock()
 		})
 	}
+
 	p.Wait()
 
 	// Sort for consistency
@@ -157,6 +116,116 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 	w.Flush()
 
 	return nil
+}
+
+func (a *action) getGitHubRepoData(ctx context.Context, modulePath string) (lastCommitAt time.Time, starCount int, ok bool) {
+	ghParts := reGitHub.FindStringSubmatch(modulePath)
+	if len(ghParts) != 3 {
+		return lastCommitAt, starCount, ok
+	}
+
+	ghOwner := ghParts[1]
+	ghRepo := ghParts[2]
+
+	ghRepoData, _, err := a.ghClient.Repositories.Get(ctx, ghOwner, ghRepo)
+	if err != nil {
+		a.log("GitHub failed to get repo %s/%s: %s\n", ghOwner, ghRepo, err)
+	}
+
+	if ghRepoData.StargazersCount != nil {
+		starCount = *ghRepoData.StargazersCount
+	}
+
+	ghCommits, _, err := a.ghClient.Repositories.ListCommits(ctx, ghOwner, ghRepo, &github.CommitsListOptions{
+		ListOptions: github.ListOptions{
+			Page:    1,
+			PerPage: 1,
+		},
+	})
+	if err != nil {
+		a.log("GitHub failed to list commits %s/%s: %s\n", ghOwner, ghRepo, err)
+	}
+
+	if len(ghCommits) != 0 {
+		if ghCommits[0].Commit != nil &&
+			ghCommits[0].Commit.Author != nil &&
+			ghCommits[0].Commit.Author.Date != nil {
+			lastCommitAt = ghCommits[0].Commit.Author.Date.Time
+		}
+	}
+
+	ok = true
+	return lastCommitAt, starCount, ok
+}
+
+func (a *action) getGitLabRepoData(ctx context.Context, modulePath string) (lastCommitAt time.Time, starCount int, ok bool) {
+	glParts := reGitLab.FindStringSubmatch(modulePath)
+	if len(glParts) != 3 {
+		return lastCommitAt, starCount, ok
+	}
+
+	glHost := glParts[1]
+
+	glClient, existGLClient := a.glClients[glHost]
+	if !existGLClient {
+		return lastCommitAt, starCount, ok
+	}
+
+	// GitLab supports nested groups (group/subgroup/project)
+	glProjectPath := glParts[2]
+	foundGLRepo := false
+
+	for {
+		glProject, _, err := glClient.Projects.GetProject(glProjectPath, nil, gitlab.WithContext(ctx))
+		if err != nil {
+			a.log("GitLab failed to get project %s: %s\n", glProjectPath, err)
+
+			var glErr *gitlab.ErrorResponse
+			if !errors.As(err, &glErr) ||
+				glErr.Response == nil ||
+				glErr.Response.StatusCode != http.StatusNotFound {
+				break
+			}
+
+			slashIdx := strings.LastIndex(glProjectPath, "/")
+			if slashIdx == -1 {
+				break
+			}
+
+			glProjectPath = glProjectPath[:slashIdx]
+			continue
+		}
+
+		starCount = int(glProject.StarCount)
+		foundGLRepo = true
+		break
+	}
+
+	if foundGLRepo {
+		glCommits, _, err := glClient.Commits.ListCommits(
+			glProjectPath,
+			&gitlab.ListCommitsOptions{
+				ListOptions: gitlab.ListOptions{
+					Page:    1,
+					PerPage: 1,
+				},
+			},
+			gitlab.WithContext(ctx),
+		)
+		if err != nil {
+			a.log("GitLab failed to list commits %s: %s\n", glProjectPath, err)
+		}
+
+		if len(glCommits) != 0 {
+			if glCommits[0].CommittedDate != nil {
+				lastCommitAt = *glCommits[0].CommittedDate
+			}
+		}
+
+		ok = true
+	}
+
+	return lastCommitAt, starCount, ok
 }
 
 // Nearest thounsand
