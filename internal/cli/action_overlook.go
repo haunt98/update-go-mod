@@ -14,7 +14,6 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/google/go-github/v90/github"
 	"github.com/sourcegraph/conc/pool"
 	"github.com/spf13/cast"
 	"github.com/urfave/cli/v3"
@@ -29,7 +28,7 @@ var (
 )
 
 type GitRepoData struct {
-	LastCommitAt   time.Time
+	LastActivityAt time.Time
 	ModulePath     string
 	CurrentVersion string
 	LatestVersion  string
@@ -70,16 +69,16 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 
 			if a.ghClient != nil &&
 				reGitHub.MatchString(modulePath) {
-				lastCommitAt, starCount, ok := a.getGitHubRepoData(ctx, modulePath)
+				lastActivityAt, starCount, ok := a.getGitHubRepoData(ctx, modulePath)
 				if ok {
-					gitRepoData.LastCommitAt = lastCommitAt
+					gitRepoData.LastActivityAt = lastActivityAt
 					gitRepoData.StarCount = starCount
 				}
 			} else if a.glClients != nil &&
 				reGitLab.MatchString(modulePath) {
-				lastCommitAt, starCount, ok := a.getGitLabRepoData(ctx, modulePath)
+				lastActivityAt, starCount, ok := a.getGitLabRepoData(ctx, modulePath)
 				if ok {
-					gitRepoData.LastCommitAt = lastCommitAt
+					gitRepoData.LastActivityAt = lastActivityAt
 					gitRepoData.StarCount = starCount
 				}
 			}
@@ -101,15 +100,15 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 
 	if a.flags.latest {
-		fmt.Fprintln(w, "Module\tCurrent\tLatest\tStar\tLast Commit")
+		fmt.Fprintln(w, "Module\tCurrent\tLatest\tStar\tLast activity")
 	} else {
-		fmt.Fprintln(w, "Module\tCurrent\tStar\tLast Commit")
+		fmt.Fprintln(w, "Module\tCurrent\tStar\tLast activity")
 	}
 
 	for _, r := range listGitRepoData {
-		var lastCommitAtStr string
-		if !r.LastCommitAt.IsZero() {
-			lastCommitAtStr = r.LastCommitAt.Format(time.DateOnly)
+		var lastActivityAtStr string
+		if !r.LastActivityAt.IsZero() {
+			lastActivityAtStr = r.LastActivityAt.Format(time.DateOnly)
 		}
 
 		if a.flags.latest {
@@ -120,7 +119,7 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 				r.CurrentVersion,
 				r.LatestVersion,
 				roundK(r.StarCount),
-				lastCommitAtStr,
+				lastActivityAtStr,
 			)
 		} else {
 			fmt.Fprintf(
@@ -129,7 +128,7 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 				r.ModulePath,
 				r.CurrentVersion,
 				roundK(r.StarCount),
-				lastCommitAtStr,
+				lastActivityAtStr,
 			)
 		}
 	}
@@ -139,10 +138,10 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 	return nil
 }
 
-func (a *action) getGitHubRepoData(ctx context.Context, modulePath string) (lastCommitAt time.Time, starCount int, ok bool) {
+func (a *action) getGitHubRepoData(ctx context.Context, modulePath string) (lastActivityAt time.Time, starCount int, ok bool) {
 	ghParts := reGitHub.FindStringSubmatch(modulePath)
 	if len(ghParts) != 3 {
-		return lastCommitAt, starCount, ok
+		return lastActivityAt, starCount, ok
 	}
 
 	ghOwner := ghParts[1]
@@ -151,50 +150,37 @@ func (a *action) getGitHubRepoData(ctx context.Context, modulePath string) (last
 	ghRepoData, _, err := a.ghClient.Repositories.Get(ctx, ghOwner, ghRepo)
 	if err != nil {
 		a.log("GitHub failed to get repo %s/%s: %s\n", ghOwner, ghRepo, err)
+		return lastActivityAt, starCount, ok
+	}
+
+	if ghRepoData.PushedAt != nil {
+		lastActivityAt = ghRepoData.PushedAt.Time
 	}
 
 	if ghRepoData.StargazersCount != nil {
 		starCount = *ghRepoData.StargazersCount
 	}
 
-	ghCommits, _, err := a.ghClient.Repositories.ListCommits(ctx, ghOwner, ghRepo, &github.CommitsListOptions{
-		ListOptions: github.ListOptions{
-			Page:    1,
-			PerPage: 1,
-		},
-	})
-	if err != nil {
-		a.log("GitHub failed to list commits %s/%s: %s\n", ghOwner, ghRepo, err)
-	}
-
-	if len(ghCommits) != 0 {
-		if ghCommits[0].Commit != nil &&
-			ghCommits[0].Commit.Author != nil &&
-			ghCommits[0].Commit.Author.Date != nil {
-			lastCommitAt = ghCommits[0].Commit.Author.Date.Time
-		}
-	}
-
 	ok = true
-	return lastCommitAt, starCount, ok
+
+	return lastActivityAt, starCount, ok
 }
 
-func (a *action) getGitLabRepoData(ctx context.Context, modulePath string) (lastCommitAt time.Time, starCount int, ok bool) {
+func (a *action) getGitLabRepoData(ctx context.Context, modulePath string) (lastActivityAt time.Time, starCount int, ok bool) {
 	glParts := reGitLab.FindStringSubmatch(modulePath)
 	if len(glParts) != 3 {
-		return lastCommitAt, starCount, ok
+		return lastActivityAt, starCount, ok
 	}
 
 	glHost := glParts[1]
 
 	glClient, existGLClient := a.glClients[glHost]
 	if !existGLClient {
-		return lastCommitAt, starCount, ok
+		return lastActivityAt, starCount, ok
 	}
 
 	// GitLab supports nested groups (group/subgroup/project)
 	glProjectPath := glParts[2]
-	foundGLRepo := false
 
 	for {
 		glProject, _, err := glClient.Projects.GetProject(glProjectPath, nil, gitlab.WithContext(ctx))
@@ -217,36 +203,18 @@ func (a *action) getGitLabRepoData(ctx context.Context, modulePath string) (last
 			continue
 		}
 
+		if glProject.LastActivityAt != nil {
+			lastActivityAt = *glProject.LastActivityAt
+		}
+
 		starCount = int(glProject.StarCount)
-		foundGLRepo = true
+
+		ok = true
+
 		break
 	}
 
-	if foundGLRepo {
-		glCommits, _, err := glClient.Commits.ListCommits(
-			glProjectPath,
-			&gitlab.ListCommitsOptions{
-				ListOptions: gitlab.ListOptions{
-					Page:    1,
-					PerPage: 1,
-				},
-			},
-			gitlab.WithContext(ctx),
-		)
-		if err != nil {
-			a.log("GitLab failed to list commits %s: %s\n", glProjectPath, err)
-		}
-
-		if len(glCommits) != 0 {
-			if glCommits[0].CommittedDate != nil {
-				lastCommitAt = *glCommits[0].CommittedDate
-			}
-		}
-
-		ok = true
-	}
-
-	return lastCommitAt, starCount, ok
+	return lastActivityAt, starCount, ok
 }
 
 // Nearest thounsand
