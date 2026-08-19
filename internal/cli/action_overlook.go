@@ -20,11 +20,11 @@ const maxPoolGoroutine = 8
 
 var reGitHub = regexp.MustCompile(`github\.com/([^/]*)/([^/]*)`)
 
-type GitHubRepoData struct {
+type GitRepoData struct {
 	LastCommitAt   time.Time
+	ModulePath     string
 	CurrentVersion string
 	LatestVersion  string
-	Name           string
 	StarCount      int
 }
 
@@ -45,79 +45,87 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 		return nil
 	}
 
-	listGHRepoData := make([]GitHubRepoData, 0, len(mapImportedModules))
-	// To avoid duplicate
-	mGHRepoData := make(map[string]struct{})
+	listGitRepoData := make([]GitRepoData, 0, len(mapImportedModules))
+	// To avoid process again
+	mProccessedGitRepoData := make(map[string]struct{})
 
 	p := pool.New().WithMaxGoroutines(maxPoolGoroutine)
 	var mMutex sync.Mutex
 	var listMutex sync.Mutex
 	for modulePath, module := range mapImportedModules {
 		p.Go(func() {
-			ctx := context.Background()
+			ctx := context.WithoutCancel(ctx)
 
-			if !reGitHub.MatchString(modulePath) {
-				return
-			}
-
-			parts := reGitHub.FindStringSubmatch(modulePath)
-			if len(parts) != 3 {
-				return
-			}
-
-			name := parts[0]
-			mMutex.Lock()
-			if _, ok := mGHRepoData[name]; ok {
-				mMutex.Unlock()
-				return
-			}
-			mGHRepoData[name] = struct{}{}
-			mMutex.Unlock()
-
-			owner := parts[1]
-			repo := parts[2]
-
-			ghRepo, _, err := a.ghClient.Repositories.Get(ctx, owner, repo)
-			if err != nil {
-				a.log("GitHub failed to get repo %s/%s: %s\n", owner, repo, err)
-			}
-
-			var starCount int
-			if ghRepo.StargazersCount != nil {
-				starCount = *ghRepo.StargazersCount
-			}
-
-			ghCommits, _, err := a.ghClient.Repositories.ListCommits(ctx, owner, repo, &github.CommitsListOptions{
-				ListOptions: github.ListOptions{
-					Page:    1,
-					PerPage: 1,
-				},
-			})
-			if err != nil {
-				a.log("GitHub failed to get commits %s/%s: %s\n", owner, repo, err)
-			}
-
-			var lastCommitAt time.Time
-			if len(ghCommits) != 0 {
-				if ghCommits[0].Commit != nil &&
-					ghCommits[0].Commit.Author != nil &&
-					ghCommits[0].Commit.Author.Date != nil {
-					lastCommitAt = ghCommits[0].Commit.Author.Date.Time
-				}
-			}
-
-			latestVersion := ""
+			var latestVersion string
 			if module.Update != nil {
 				latestVersion = module.Update.Version
 			}
 
+			if reGitHub.MatchString(modulePath) {
+				ghParts := reGitHub.FindStringSubmatch(modulePath)
+				if len(ghParts) != 3 {
+					return
+				}
+
+				ghRepoName := ghParts[0]
+				mMutex.Lock()
+				if _, ok := mProccessedGitRepoData[ghRepoName]; ok {
+					mMutex.Unlock()
+					return
+				}
+				mProccessedGitRepoData[ghRepoName] = struct{}{}
+				mMutex.Unlock()
+
+				ghOwner := ghParts[1]
+				ghRepo := ghParts[2]
+
+				ghRepoData, _, err := a.ghClient.Repositories.Get(ctx, ghOwner, ghRepo)
+				if err != nil {
+					a.log("GitHub failed to get repo %s/%s: %s\n", ghOwner, ghRepo, err)
+				}
+
+				var starCount int
+				if ghRepoData.StargazersCount != nil {
+					starCount = *ghRepoData.StargazersCount
+				}
+
+				ghCommits, _, err := a.ghClient.Repositories.ListCommits(ctx, ghOwner, ghRepo, &github.CommitsListOptions{
+					ListOptions: github.ListOptions{
+						Page:    1,
+						PerPage: 1,
+					},
+				})
+				if err != nil {
+					a.log("GitHub failed to get commits %s/%s: %s\n", ghOwner, ghRepo, err)
+				}
+
+				var lastCommitAt time.Time
+				if len(ghCommits) != 0 {
+					if ghCommits[0].Commit != nil &&
+						ghCommits[0].Commit.Author != nil &&
+						ghCommits[0].Commit.Author.Date != nil {
+						lastCommitAt = ghCommits[0].Commit.Author.Date.Time
+					}
+				}
+
+				listMutex.Lock()
+				listGitRepoData = append(listGitRepoData, GitRepoData{
+					LastCommitAt:   lastCommitAt,
+					ModulePath:     modulePath,
+					CurrentVersion: module.Version,
+					LatestVersion:  latestVersion,
+					StarCount:      starCount,
+				})
+				listMutex.Unlock()
+
+				return
+			}
+
 			listMutex.Lock()
-			listGHRepoData = append(listGHRepoData, GitHubRepoData{
+			listGitRepoData = append(listGitRepoData, GitRepoData{
+				ModulePath:     modulePath,
 				CurrentVersion: module.Version,
 				LatestVersion:  latestVersion,
-				Name:           name,
-				LastCommitAt:   lastCommitAt,
-				StarCount:      starCount,
 			})
 			listMutex.Unlock()
 		})
@@ -125,8 +133,8 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 	p.Wait()
 
 	// Sort for consistency
-	sort.Slice(listGHRepoData, func(i, j int) bool {
-		return listGHRepoData[i].Name < listGHRepoData[j].Name
+	sort.Slice(listGitRepoData, func(i, j int) bool {
+		return listGitRepoData[i].ModulePath < listGitRepoData[j].ModulePath
 	})
 
 	// Print
@@ -138,12 +146,12 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 		fmt.Fprintln(w, "Module\tCurrent\t⭐\tLast Commit")
 	}
 
-	for _, r := range listGHRepoData {
+	for _, r := range listGitRepoData {
 		if a.flags.latest {
-			fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", r.Name, r.CurrentVersion, r.LatestVersion, roundK(r.StarCount), r.LastCommitAt.Format(time.DateOnly))
+			fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\n", r.ModulePath, r.CurrentVersion, r.LatestVersion, roundK(r.StarCount), r.LastCommitAt.Format(time.DateOnly))
 			continue
 		}
-		fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", r.Name, r.CurrentVersion, roundK(r.StarCount), r.LastCommitAt.Format(time.DateOnly))
+		fmt.Fprintf(w, "%s\t%s\t%s\t%s\n", r.ModulePath, r.CurrentVersion, roundK(r.StarCount), r.LastCommitAt.Format(time.DateOnly))
 	}
 
 	w.Flush()
