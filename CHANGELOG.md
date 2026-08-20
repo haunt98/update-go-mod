@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## v0.15.0 (2026-08-20)
+
+### Added
+
+- feat: rm mutex lock (2026-08-20)
+
+- feat: better overlook output (2026-08-20)
+
+- feat: add -extra (2026-08-20)
+
+### Others
+
+- chore(changelog): generate v0.14.0 (2026-08-19)
+
+### Build
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.10.1 to 3.11.0 (#134) (2026-08-20)
+
 ## v0.14.0 (2026-08-19)
 
 ### Added
