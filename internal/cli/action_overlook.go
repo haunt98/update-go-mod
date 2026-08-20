@@ -22,7 +22,7 @@ import (
 const maxPoolGoroutine = 8
 
 var (
-	reGitHub = regexp.MustCompile(`github\.com/([^/]*)/([^/]*)`)
+	reGitHub = regexp.MustCompile(`^github\.com/([^/]*)/([^/]*)`)
 	reGitLab = regexp.MustCompile(`^(gitlab[^/]+)/(.+)`)
 )
 
