@@ -33,6 +33,9 @@ var (
 func (a *action) Run(ctx context.Context, c *cli.Command) error {
 	a.getFlags(c)
 
+	// Always get latest version
+	a.flags.latest = true
+
 	mapImportedModules, err := a.runGetImportedModules(ctx)
 	if err != nil {
 		return err
@@ -123,8 +126,6 @@ func (a *action) runGetImportedModules(ctx context.Context) (map[string]*Module,
 		mapImportedModules[importedModule.Path] = importedModule
 	}
 
-	a.log("Imported modules: %+v\n", importedModules)
-
 	return mapImportedModules, nil
 }
 
@@ -161,27 +162,13 @@ func (a *action) runUpgradeModule(
 		return successUpgradedModules, nil
 	}
 
-	a.log("Module path: %s\n", modulePath)
-
 	// Ignore not imported module
 	if _, ok := mapImportedModules[modulePath]; !ok {
 		a.log("%s is not imported module\n", modulePath)
 		return successUpgradedModules, nil
 	}
 
-	// Get module latest version
-	goListArgs := []string{"list", "-m", "-u", "-json", "-mod=readonly", modulePath}
-	goOutput, err := exec.CommandContext(ctx, "go", goListArgs...).CombinedOutput()
-	if err != nil {
-		return successUpgradedModules, fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goListArgs, " "), err)
-	}
-	a.log("Go output: %s\n", string(goOutput))
-
-	module := &Module{}
-	if err := sonic.Unmarshal(goOutput, module); err != nil {
-		return successUpgradedModules, fmt.Errorf("sonic: failed to unmarshal: %w", err)
-	}
-	a.log("Module: %+v\n", module)
+	module := mapImportedModules[modulePath]
 
 	if module.Update == nil {
 		color.PrintAppOK(name, fmt.Sprintf("You already have latest [%s] version [%s]", module.Path, module.Version))
@@ -197,7 +184,7 @@ func (a *action) runUpgradeModule(
 	}
 
 	goGetArgs := []string{"get", modulePath + "@" + module.Update.Version}
-	goOutput, err = exec.CommandContext(ctx, "go", goGetArgs...).CombinedOutput()
+	goOutput, err := exec.CommandContext(ctx, "go", goGetArgs...).CombinedOutput()
 	if err != nil {
 		return successUpgradedModules, fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goGetArgs, " "), err)
 	}
