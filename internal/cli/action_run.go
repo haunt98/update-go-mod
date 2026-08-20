@@ -186,7 +186,7 @@ func (a *action) runUpgradeModule(
 	goGetArgs := []string{"get", modulePath + "@" + module.Update.Version}
 	goOutput, err := exec.CommandContext(ctx, "go", goGetArgs...).CombinedOutput()
 	if err != nil {
-		return successUpgradedModules, fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goGetArgs, " "), err)
+		return successUpgradedModules, fmt.Errorf("exec: failed to run go %s: %w", strings.Join(goGetArgs, " "), err)
 	}
 	a.log("Go output: %s\n", string(goOutput))
 
@@ -204,15 +204,17 @@ func (a *action) runGoMod(ctx context.Context, existVendor bool) error {
 
 	// go mod edit -toolchain=none
 	goModArgs := []string{"mod", "edit", "-toolchain=none"}
-	if _, err := exec.CommandContext(ctx, "go", goModArgs...).CombinedOutput(); err != nil {
-		return fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
+	goOutput, err := exec.CommandContext(ctx, "go", goModArgs...).CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("exec: failed to run go %s: %w", strings.Join(goModArgs, " "), err)
 	}
+	a.log("Go output: %s\n", string(goOutput))
 
 	// go mod tidy
 	goModArgs = []string{"mod", "tidy"}
-	goOutput, err := exec.CommandContext(ctx, "go", goModArgs...).CombinedOutput()
+	goOutput, err = exec.CommandContext(ctx, "go", goModArgs...).CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
+		return fmt.Errorf("exec: failed to run go %s: %w", strings.Join(goModArgs, " "), err)
 	}
 	a.log("Go output: %s\n", string(goOutput))
 
@@ -221,7 +223,7 @@ func (a *action) runGoMod(ctx context.Context, existVendor bool) error {
 		goModArgs = []string{"mod", "vendor"}
 		goOutput, err = exec.CommandContext(ctx, "go", goModArgs...).CombinedOutput()
 		if err != nil {
-			return fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
+			return fmt.Errorf("exec: failed to run go %s: %w", strings.Join(goModArgs, " "), err)
 		}
 		a.log("Go output: %s\n", string(goOutput))
 	}
@@ -242,7 +244,7 @@ func (a *action) runReadGoMod(ctx context.Context) (*GoMod, error) {
 	goModArgs := []string{"mod", "edit", "-json"}
 	goOutput, err := exec.CommandContext(ctx, "go", goModArgs...).CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("exec: failed to run go %+v: %w", strings.Join(goModArgs, " "), err)
+		return nil, fmt.Errorf("exec: failed to run go %s: %w", strings.Join(goModArgs, " "), err)
 	}
 
 	goMod := &GoMod{}
@@ -284,7 +286,7 @@ func (a *action) runGitCommit(ctx context.Context, successUpgradedModules []*Mod
 
 	gitOutput, err := exec.CommandContext(ctx, "git", gitAddArgs...).CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("exec: failed to run git %+v: %w", strings.Join(gitAddArgs, " "), err)
+		return fmt.Errorf("exec: failed to run git %s: %w", strings.Join(gitAddArgs, " "), err)
 	}
 	a.log("Git output: %s\n", string(gitOutput))
 
@@ -297,7 +299,7 @@ func (a *action) runGitCommit(ctx context.Context, successUpgradedModules []*Mod
 	gitCommitArgs := []string{"commit", "-m", gitCommitMessage.String()}
 	gitOutput, err = exec.CommandContext(ctx, "git", gitCommitArgs...).CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("exec: failed to run git %+v: %w", strings.Join(gitCommitArgs, " "), err)
+		return fmt.Errorf("exec: failed to run git %s: %w", strings.Join(gitCommitArgs, " "), err)
 	}
 	a.log("Git output: %s\n", string(gitOutput))
 
