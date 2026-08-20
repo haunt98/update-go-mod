@@ -21,6 +21,7 @@ type action struct {
 		verbose  bool
 		dryRun   bool
 		latest   bool
+		extra    bool
 	}
 }
 
@@ -37,8 +38,9 @@ func (a *action) getFlags(c *cli.Command) {
 		a.flags.depsFile = defaultDepsFile
 	}
 
-	a.flags.dryRun = c.Bool(flagDryRun)
+	a.flags.dryRun = c.Bool(flagDryRunName)
 	a.flags.latest = c.Bool(flagLatestName)
+	a.flags.extra = c.Bool(flagExtraName)
 
 	a.log("Flags %+v\n", a.flags)
 }

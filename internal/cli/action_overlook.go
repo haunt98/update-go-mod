@@ -57,7 +57,8 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 			ctx := context.WithoutCancel(ctx)
 
 			var latestVersion string
-			if module.Update != nil {
+			if a.flags.latest &&
+				module.Update != nil {
 				latestVersion = module.Update.Version
 			}
 
@@ -67,19 +68,21 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 				LatestVersion:  latestVersion,
 			}
 
-			if a.ghClient != nil &&
-				reGitHub.MatchString(modulePath) {
-				lastActivityAt, starCount, ok := a.getGitHubRepoData(ctx, modulePath)
-				if ok {
-					gitRepoData.LastActivityAt = lastActivityAt
-					gitRepoData.StarCount = starCount
-				}
-			} else if a.glClients != nil &&
-				reGitLab.MatchString(modulePath) {
-				lastActivityAt, starCount, ok := a.getGitLabRepoData(ctx, modulePath)
-				if ok {
-					gitRepoData.LastActivityAt = lastActivityAt
-					gitRepoData.StarCount = starCount
+			if a.flags.extra {
+				if a.ghClient != nil &&
+					reGitHub.MatchString(modulePath) {
+					lastActivityAt, starCount, ok := a.getGitHubRepoData(ctx, modulePath)
+					if ok {
+						gitRepoData.LastActivityAt = lastActivityAt
+						gitRepoData.StarCount = starCount
+					}
+				} else if a.glClients != nil &&
+					reGitLab.MatchString(modulePath) {
+					lastActivityAt, starCount, ok := a.getGitLabRepoData(ctx, modulePath)
+					if ok {
+						gitRepoData.LastActivityAt = lastActivityAt
+						gitRepoData.StarCount = starCount
+					}
 				}
 			}
 

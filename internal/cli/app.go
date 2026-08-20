@@ -27,11 +27,14 @@ const (
 	flagDepsFileName  = "deps-file"
 	flagDepsFileUsage = "file which show what deps need to upgrade"
 
-	flagDryRun     = "dry-run"
-	flagDryRunName = "demo what would be done"
+	flagDryRunName  = "dry-run"
+	flagDryRunUsage = "demo what would be done"
 
 	flagLatestName  = "latest"
 	flagLatestUsage = "show latest version"
+
+	flagExtraName  = "extra"
+	flagExtraUsage = "show extra info"
 )
 
 var aliasFlagVerbose = []string{"v"}
@@ -67,8 +70,8 @@ func NewApp(
 						Usage: flagDepsFileUsage,
 					},
 					&cli.BoolFlag{
-						Name:  flagDryRun,
-						Usage: flagDryRunName,
+						Name:  flagDryRunName,
+						Usage: flagDryRunUsage,
 					},
 				},
 				Action: a.Run,
@@ -85,6 +88,10 @@ func NewApp(
 					&cli.BoolFlag{
 						Name:  flagLatestName,
 						Usage: flagLatestUsage,
+					},
+					&cli.BoolFlag{
+						Name:  flagExtraName,
+						Usage: flagExtraUsage,
 					},
 				},
 				Action: a.Overlook,
