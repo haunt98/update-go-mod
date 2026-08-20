@@ -10,7 +10,6 @@ import (
 	"regexp"
 	"slices"
 	"strings"
-	"sync"
 	"text/tabwriter"
 	"time"
 
@@ -47,13 +46,11 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 		return nil
 	}
 
-	listGitRepoData := make([]GitRepoData, 0, len(mapImportedModules))
-	var listMutex sync.Mutex
-
-	p := pool.New().WithMaxGoroutines(maxPoolGoroutine)
+	p := pool.NewWithResults[GitRepoData]().
+		WithMaxGoroutines(maxPoolGoroutine)
 
 	for modulePath, module := range mapImportedModules {
-		p.Go(func() {
+		p.Go(func() GitRepoData {
 			ctx := context.WithoutCancel(ctx)
 
 			var latestVersion string
@@ -86,16 +83,14 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 				}
 			}
 
-			listMutex.Lock()
-			listGitRepoData = append(listGitRepoData, gitRepoData)
-			listMutex.Unlock()
+			return gitRepoData
 		})
 	}
 
-	p.Wait()
+	gitRepoDatas := p.Wait()
 
 	// Sort for consistency
-	slices.SortFunc(listGitRepoData, func(a, b GitRepoData) int {
+	slices.SortFunc(gitRepoDatas, func(a, b GitRepoData) int {
 		return cmp.Compare(a.ModulePath, b.ModulePath)
 	})
 
@@ -111,7 +106,7 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 	}
 	fmt.Fprintln(w, strings.Join(header, "\t"))
 
-	for _, r := range listGitRepoData {
+	for _, r := range gitRepoDatas {
 		row := []string{r.ModulePath, r.CurrentVersion}
 		if a.flags.latest {
 			row = append(row, r.LatestVersion)
