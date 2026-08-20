@@ -94,14 +94,14 @@ func (a *action) runGetImportedModules(ctx context.Context) (map[string]*Module,
 		return nil, fmt.Errorf("exec: failed to run go %s: %w", strings.Join(goListAllArgs, " "), err)
 	}
 
-	// goAllOutput is like {...}\n{...}\n{...}
+	// goOutput is like {...}\n{...}\n{...}
 	// Missing [] and , for json
-	goOutputStr := strings.ReplaceAll(strings.TrimSpace(string(goOutput)), "\n", "")
-	goOutputStr = strings.ReplaceAll(goOutputStr, "}{", "},{")
-	goOutputStr = "[" + goOutputStr + "]"
+	importedModulesStr := strings.ReplaceAll(strings.TrimSpace(string(goOutput)), "\n", "")
+	importedModulesStr = strings.ReplaceAll(importedModulesStr, "}{", "},{")
+	importedModulesStr = "[" + importedModulesStr + "]"
 
 	importedModules := make([]*Module, 0, defaultCountModule)
-	if err := sonic.UnmarshalString(goOutputStr, &importedModules); err != nil {
+	if err := sonic.UnmarshalString(importedModulesStr, &importedModules); err != nil {
 		return nil, fmt.Errorf("sonic: failed to unmarshal: %w", err)
 	}
 	a.log("Go output: %s\n", string(goOutput))
