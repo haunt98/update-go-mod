@@ -102,38 +102,28 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 	// Print
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 
+	header := []string{"Module", "Current"}
 	if a.flags.latest {
-		fmt.Fprintln(w, "Module\tCurrent\tLatest\tStar\tLast activity")
-	} else {
-		fmt.Fprintln(w, "Module\tCurrent\tStar\tLast activity")
+		header = append(header, "Latest")
 	}
+	if a.flags.extra {
+		header = append(header, "Star", "Last activity")
+	}
+	fmt.Fprintln(w, strings.Join(header, "\t"))
 
 	for _, r := range listGitRepoData {
-		var lastActivityAtStr string
-		if !r.LastActivityAt.IsZero() {
-			lastActivityAtStr = r.LastActivityAt.Format(time.DateOnly)
-		}
-
+		row := []string{r.ModulePath, r.CurrentVersion}
 		if a.flags.latest {
-			fmt.Fprintf(
-				w,
-				"%s\t%s\t%s\t%s\t%s\n",
-				r.ModulePath,
-				r.CurrentVersion,
-				r.LatestVersion,
-				roundK(r.StarCount),
-				lastActivityAtStr,
-			)
-		} else {
-			fmt.Fprintf(
-				w,
-				"%s\t%s\t%s\t%s\n",
-				r.ModulePath,
-				r.CurrentVersion,
-				roundK(r.StarCount),
-				lastActivityAtStr,
-			)
+			row = append(row, r.LatestVersion)
 		}
+		if a.flags.extra {
+			var lastActivityAtStr string
+			if !r.LastActivityAt.IsZero() {
+				lastActivityAtStr = r.LastActivityAt.Format(time.DateOnly)
+			}
+			row = append(row, roundK(r.StarCount), lastActivityAtStr)
+		}
+		fmt.Fprintln(w, strings.Join(row, "\t"))
 	}
 
 	w.Flush()
