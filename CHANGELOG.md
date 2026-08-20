@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## v0.15.1 (2026-08-20)
+
+### Added
+
+- feat: better regex (2026-08-20)
+
+### Others
+
+- chore: better cmt (2026-08-20)
+
+- chore: better log (2026-08-20)
+
+- perf: 1 req get update modules instead 1 + N (2026-08-20)
+
+- chore(changelog): generate v0.15.0 (2026-08-20)
+
 ## v0.15.0 (2026-08-20)
 
 ### Added
