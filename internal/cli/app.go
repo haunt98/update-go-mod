@@ -4,7 +4,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/google/go-github/v91/github"
+	"github.com/google/go-github/v92/github"
 	"github.com/urfave/cli/v3"
 	gitlab "gitlab.com/gitlab-org/api/client-go"
 
