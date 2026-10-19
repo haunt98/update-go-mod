@@ -1,5 +1,33 @@
 # CHANGELOG
 
+## v0.16.0 (2026-10-19)
+
+### Added
+
+- feat: add flag latest-only to overlook command (2026-10-19)
+
+### Others
+
+- chore(changelog): generate v0.15.1 (2026-08-20)
+
+### Build
+
+- build: bump go deps (2026-10-16)
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.13.0 to 3.14.0 (#139) (2026-10-05)
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.12.0 to 3.13.0 (#138) (2026-09-24)
+
+- chore(deps): bump github.com/urfave/cli/v3 from 3.11.0 to 3.12.0 (#137) (2026-09-18)
+
+- build: bump go deps (2026-09-15)
+
+- chore(deps): bump github.com/bytedance/sonic from 1.15.3 to 1.15.4 (#136) (2026-09-14)
+
+- build: bump go deps (2026-09-04)
+
+- chore(deps): bump github.com/bytedance/sonic from 1.15.2 to 1.15.3 (#135) (2026-08-27)
+
 ## v0.15.1 (2026-08-20)
 
 ### Added
