@@ -17,11 +17,12 @@ type action struct {
 	ghClient  *github.Client
 	glClients map[string]*gitlab.Client
 	flags     struct {
-		depsFile string
-		verbose  bool
-		dryRun   bool
-		latest   bool
-		extra    bool
+		depsFile   string
+		verbose    bool
+		dryRun     bool
+		latest     bool
+		latestOnly bool
+		extra      bool
 	}
 }
 
@@ -40,6 +41,7 @@ func (a *action) getFlags(c *cli.Command) {
 
 	a.flags.dryRun = c.Bool(flagDryRunName)
 	a.flags.latest = c.Bool(flagLatestName)
+	a.flags.latestOnly = a.flags.latest && c.Bool(flagLatestOnlyName)
 	a.flags.extra = c.Bool(flagExtraName)
 
 	a.log("Flags %+v\n", a.flags)

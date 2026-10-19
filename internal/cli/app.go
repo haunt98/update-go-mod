@@ -33,6 +33,9 @@ const (
 	flagLatestName  = "latest"
 	flagLatestUsage = "show latest version"
 
+	flagLatestOnlyName  = "latest-only"
+	flagLatestOnlyUsage = "if exist latest then only output what need to upgrade"
+
 	flagExtraName  = "extra"
 	flagExtraUsage = "show extra info"
 )
@@ -88,6 +91,10 @@ func NewApp(
 					&cli.BoolFlag{
 						Name:  flagLatestName,
 						Usage: flagLatestUsage,
+					},
+					&cli.BoolFlag{
+						Name:  flagLatestOnlyName,
+						Usage: flagLatestOnlyUsage,
 					},
 					&cli.BoolFlag{
 						Name:  flagExtraName,

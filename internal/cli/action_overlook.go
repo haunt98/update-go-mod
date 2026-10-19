@@ -107,6 +107,11 @@ func (a *action) Overlook(ctx context.Context, c *cli.Command) error {
 	fmt.Fprintln(w, strings.Join(header, "\t"))
 
 	for _, r := range gitRepoDatas {
+		if a.flags.latestOnly &&
+			r.LatestVersion == "" {
+			continue
+		}
+
 		row := []string{r.ModulePath, r.CurrentVersion}
 		if a.flags.latest {
 			row = append(row, r.LatestVersion)
